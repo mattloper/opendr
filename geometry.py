@@ -17,7 +17,7 @@ from chumpy.utils import row, col
 from chumpy import *
 import chumpy as ch
 from chumpy.ch import MatVecMult
-from drender.topology import get_faces_per_edge, get_vert_connectivity
+from opendr.topology import get_faces_per_edge, get_vert_connectivity
 
 class NormalizedNx3(Ch):
     dterms = 'v'

@@ -2,7 +2,7 @@ __author__ = 'matt'
 
 import cv2
 import numpy as np
-from drender.contexts._constants import *
+from opendr.contexts._constants import *
 
 import platform
 if platform.system()=='Darwin':

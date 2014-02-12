@@ -1,4 +1,4 @@
-from drender.camera import ProjectPoints
+from opendr.camera import ProjectPoints
 
 
 import unittest
@@ -17,11 +17,11 @@ class TestOcclusion(unittest.TestCase):
         # Create renderer
         import chumpy as ch
         import numpy as np
-        from drender.renderer import ColoredRenderer
+        from opendr.renderer import ColoredRenderer
         rn = ColoredRenderer()
 
         # Assign attributes to renderer
-        from drender.test_dr.common import get_earthmesh
+        from opendr.test_dr.common import get_earthmesh
         m = get_earthmesh(trans=ch.array([0,0,4]), rotation=ch.zeros(3))
         m.v[:,2] = np.mean(m.v[:,2])
 

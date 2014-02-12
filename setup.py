@@ -18,16 +18,16 @@ import contexts.autogen
 
 
 
-def setup_drender(args):
-    setup(name='drender',
+def setup_opendr(args):
+    setup(name='opendr',
             version='0.5',
-            packages = ['drender', 'drender.contexts', 'drender.test_dr'],
-            package_dir = {'drender': '.'},
+            packages = ['opendr', 'opendr.contexts', 'opendr.test_dr'],
+            package_dir = {'opendr': '.'},
             author = 'Matthew Loper',
             author_email = 'matt.loper@gmail.com',
-            url = 'http://files.is.tue.mpg/mloper/drender/',
-            ext_package='drender',
-            package_data={'drender': ['test_dr/nasa*']},
+            url = 'http://files.is.tue.mpg/mloper/opendr/',
+            ext_package='opendr',
+            package_data={'opendr': ['test_dr/nasa*']},
             **args
           )
 
@@ -71,7 +71,7 @@ def main():
     #setup_args['ext_modules'] = cythonize(setup_args['ext_modules'])
 
     # Build
-    setup_drender(setup_args)
+    setup_opendr(setup_args)
 
 
 if __name__ == '__main__':

@@ -9,7 +9,7 @@ contexts/ctx_mesa.c:
 	make -C contexts
 
 sdist: all
-	python setup.py sdist && rsync -avz dist/drender-0.5.tar.gz files:~/drender/latest.tgz
+	python setup.py sdist && rsync -avz dist/opendr-0.5.tar.gz files:~/opendr/latest.tgz
 
 clean:
 	rm -rf `find . -name \*.pyc` `find . -name \*~` build/ dist/; make -C contexts clean

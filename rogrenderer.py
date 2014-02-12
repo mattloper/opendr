@@ -10,8 +10,8 @@ import os
 import cv2
 import numpy as np
 
-from drender.renderer import TexturedRenderer
-from drender.lighting import LambertianPointLight
+from opendr.renderer import TexturedRenderer
+from opendr.lighting import LambertianPointLight
 #from test_renderer import get_camera, convertCam, get_earthmesh
 
 

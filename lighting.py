@@ -18,7 +18,7 @@ import scipy
 from chumpy.utils import row, col
 import chumpy as ch
 from chumpy.ch import Ch
-from drender.geometry import VertNormals
+from opendr.geometry import VertNormals
 from chumpy import multiply, maximum
 
 

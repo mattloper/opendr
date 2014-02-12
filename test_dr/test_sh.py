@@ -12,18 +12,18 @@ Copyright (c) 2013 MPI. All rights reserved.
 from chumpy import Ch
 import numpy as np
 from chumpy.utils import row, col
-from drender.lighting import SphericalHarmonics
+from opendr.lighting import SphericalHarmonics
 import unittest
 try:
     import matplotlib.pyplot as plt
 except:
     from dummy import dummy as plt
-from drender.topology import loop_subdivider
+from opendr.topology import loop_subdivider
 
 visualize = False
 
 def getcam():
-    from drender.camera import ProjectPoints3D
+    from opendr.camera import ProjectPoints3D
 
     w = 640
     h = 320
@@ -53,7 +53,7 @@ class TestSphericalHarmonics(unittest.TestCase):
         # Get mesh
         v, f = get_sphere_mesh()
 
-        from drender.geometry import VertNormals
+        from opendr.geometry import VertNormals
         vn = VertNormals(v=v, f=f)
         #vn =  Ch(mesh.estimate_vertex_normals())
 
@@ -61,7 +61,7 @@ class TestSphericalHarmonics(unittest.TestCase):
         cam, frustum = getcam()
     
         # Get renderer
-        from drender.renderer2 import ColoredRenderer
+        from opendr.renderer2 import ColoredRenderer
         cam.v = v
         cr = ColoredRenderer(f=f, camera=cam, frustum=frustum, v=v)
     
@@ -133,7 +133,7 @@ class TestSphericalHarmonics(unittest.TestCase):
     
 
 def get_sphere_mesh():
-    from drender.test_dr.common import get_earthmesh
+    from opendr.test_dr.common import get_earthmesh
 
     mesh = get_earthmesh(np.zeros(3), np.zeros(3)) # load_mesh(filename)
     v, f = mesh.v*64., mesh.f

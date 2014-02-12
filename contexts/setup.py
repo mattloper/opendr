@@ -14,7 +14,7 @@ from Cython.Distutils import build_ext
 import numpy
 import re
 import platform
-from drender.utils import wget
+from opendr.utils import wget
 import zipfile
 
 
@@ -73,7 +73,7 @@ def download_osmesa():
         osmesa_fname = 'OSMesa.%s.%s.zip' % (sysinfo[0], sysinfo[-2])
         dest_fname = '%s/%s' % (curdir, osmesa_fname,)
         if not exists(dest_fname):
-            wget('http://files.is.tue.mpg.de/mloper/drender/osmesa/%s' % (osmesa_fname,), dest_fname=dest_fname)
+            wget('http://files.is.tue.mpg.de/mloper/opendr/osmesa/%s' % (osmesa_fname,), dest_fname=dest_fname)
         assert(exists(dest_fname))
 
         with zipfile.ZipFile(dest_fname, 'r') as z:

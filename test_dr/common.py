@@ -6,10 +6,10 @@ import numpy as np
 import cv2
 
 from chumpy.utils import row, col
-from drender.utils import wget
+from opendr.utils import wget
 
 def get_earthmesh(trans, rotation):
-    from drender.serialization import load_mesh
+    from opendr.serialization import load_mesh
 
     from copy import deepcopy
     if not hasattr(get_earthmesh, 'm'):
@@ -18,9 +18,9 @@ def get_earthmesh(trans, rotation):
             dest = join(split(__file__)[0], split(url)[1])
             if not exists(dest):
                 wget(url, dest)
-        wg('http://files.is.tue.mpg.de/mloper/drender/images/nasa_earth.obj')
-        wg('http://files.is.tue.mpg.de/mloper/drender/images/nasa_earth.mtl')
-        wg('http://files.is.tue.mpg.de/mloper/drender/images/nasa_earth.jpg')
+        wg('http://files.is.tue.mpg.de/mloper/opendr/images/nasa_earth.obj')
+        wg('http://files.is.tue.mpg.de/mloper/opendr/images/nasa_earth.mtl')
+        wg('http://files.is.tue.mpg.de/mloper/opendr/images/nasa_earth.jpg')
 
         fname = join(split(__file__)[0], 'nasa_earth.obj')
         mesh = load_mesh(fname)

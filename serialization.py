@@ -12,7 +12,7 @@ __all__ = ['load_mesh']
 from os.path import split, splitext, join, exists, normpath
 import cv2
 import numpy as np
-from drender.dummy import Minimal
+from opendr.dummy import Minimal
 
 def load_mesh(filename):
 

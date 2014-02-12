@@ -10,7 +10,7 @@ Copyright (c) 2013 MPI. All rights reserved.
 import unittest
 import numpy as np
 
-from drender.camera import *
+from opendr.camera import *
 import chumpy as ch
 
 

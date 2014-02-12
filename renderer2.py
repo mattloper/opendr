@@ -613,7 +613,7 @@ def dImage_wrt_depth(visible, visibility, barycentric, image_width, image_height
 def compute_vpe_boundary_idxs(v, f, camera, fpe):
     # Figure out which edges are on pairs of differently visible triangles
     
-    from drender.geometry import TriNormals
+    from opendr.geometry import TriNormals
 
     if False:
         tn = TriNormals(v, f).r.reshape((-1,3))

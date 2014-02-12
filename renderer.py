@@ -649,7 +649,7 @@ def draw_boundary_images(glf, glb, v, f, vpe, fpe, camera):
     glb.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     # Figure out which edges are on pairs of differently visible triangles
-    from drender.geometry import TriNormals
+    from opendr.geometry import TriNormals
     tn = TriNormals(v, f).r.reshape((-1,3))
     campos = -cv2.Rodrigues(camera.rt.r)[0].T.dot(camera.t.r)
     rays_to_verts = v.reshape((-1,3)) - row(campos)
@@ -673,7 +673,7 @@ def draw_boundary_images(glf, glb, v, f, vpe, fpe, camera):
 def compute_vpe_boundary_idxs(v, f, camera, fpe):
     # Figure out which edges are on pairs of differently visible triangles
 
-    from drender.geometry import TriNormals
+    from opendr.geometry import TriNormals
     tn = TriNormals(v, f).r.reshape((-1,3))
 
     #ray = cv2.Rodrigues(camera.rt.r)[0].T[:,2]

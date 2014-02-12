@@ -18,18 +18,18 @@ try:
 except:
     from dummy import dummy as plt
 
-from drender.renderer import *
+from opendr.renderer import *
 from chumpy import Ch
 from chumpy.utils import row, col
-from drender.lighting import *
-from drender.test_dr.common import get_earthmesh, process
+from opendr.lighting import *
+from opendr.test_dr.common import get_earthmesh, process
 
 
     
 visualize = False
     
 def getcam():
-    from drender.camera import ProjectPoints
+    from opendr.camera import ProjectPoints
 
     w = 256
     h = 192
