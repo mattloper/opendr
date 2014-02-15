@@ -33,21 +33,105 @@ from chumpy.utils import row, col
 pixel_center_offset = 0.5
 
 
+class BaseRenderer(Ch):
+    terms = 'f', 'frustum','overdraw'
+    dterms = 'camera', 'v'
 
-
-
-class DepthRenderer(Ch):
-    terms = 'f', 'frustum', 'background_image'
-    dterms = 'camera', 'v'        
-    
     @property
     def v(self):
         return self.camera.v
-    
+
     @v.setter
     def v(self, newval):
         self.camera.v = newval
+
+    @property
+    def vpe(self):
+        return self.primitives_per_edge[1]
+
+    @property
+    def fpe(self):
+        return self.primitives_per_edge[0]
+
+
+    @depends_on('f') # not v: specifically, it depends only on the number of vertices, not on the values in v
+    def primitives_per_edge(self):
+        v=self.v.r.reshape((-1,3))
+        f=self.f
+        vpe = get_vertices_per_edge(v, f)
+        fpe = get_faces_per_edge(v, f, vpe)
+        return fpe, vpe
+
+    @depends_on('f', 'frustum', 'camera', 'overdraw')
+    def barycentric_image(self):
+        self._call_on_changed()
+        return draw_barycentric_image(self.glf, self.v.r, self.f, self.boundarybool_image if self.overdraw else None)
+
+
+    @depends_on(terms+dterms)
+    def boundaryid_image(self):
+        self._call_on_changed()
+        return draw_boundaryid_image(self.glb, self.v.r, self.f, self.vpe, self.fpe, self.camera)
+
+    @depends_on('f', 'frustum', 'camera', 'overdraw')
+    def visibility_image(self):
+        self._call_on_changed()
+        return draw_visibility_image(self.glb, self.v.r, self.f, self.boundarybool_image if self.overdraw else None)
+
+
+    @depends_on('f', 'frustum', 'camera', 'v')
+    def boundarybool_image(self):
+        self._call_on_changed()
+        boundaryid_image = self.boundaryid_image
+        return np.asarray(boundaryid_image != 4294967295, np.uint32).reshape(boundaryid_image.shape)
+
+    # @depends_on('f', 'frustum', 'camera', 'overdraw')
+    # def visibility_image(self):
+    #     self._call_on_changed()
+    #
+    #     self.glb.Disable(GL_TEXTURE_2D)
+    #     self.glb.DisableClientState(GL_TEXTURE_COORD_ARRAY)
+    #
+    #     if not self.overdraw:
+    #         return draw_visibility_image(self.glb, self.v.r, self.f)
+    #
+    #     result = draw_visibility_image(self.glb, self.v.r, self.f)
+    #     rr = result.ravel()
+    #     faces_to_draw = np.unique(rr[rr != 4294967295])
+    #     self.glb.PolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+    #     result2 = draw_visibility_image(self.glb, self.v.r, self.f[faces_to_draw])
+    #     self.glb.PolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+    #     bbi = self.boundarybool_image
+    #
+    #     result2 = result2.ravel()
+    #     idxs = result2 != 4294967295
+    #     result2[idxs] = faces_to_draw[result2[idxs]]
+    #
+    #     if False:
+    #         result2[result2==4294967295] = 0
+    #         import matplotlib.pyplot as plt
+    #         result2 = result2.reshape(result.shape[:2])
+    #         plt.figure()
+    #         plt.subplot(121)
+    #         plt.imshow(result.squeeze())
+    #         plt.subplot(122)
+    #         plt.imshow(result2.squeeze())
+    #
+    #     result2 = result2.reshape(result.shape[:2])
+    #     result = result2 * bbi + result * (1 - bbi)
+    #
+    #     return result
+
+
+
+
+
+
+class DepthRenderer(BaseRenderer):
+    terms = 'f', 'frustum', 'background_image','overdraw'
+    dterms = 'camera', 'v'        
     
+
     def compute_r(self):
         return self.depth_image.reshape((self.frustum['height'], self.frustum['width']))
         
@@ -64,8 +148,13 @@ class DepthRenderer(Ch):
             depth = self.depth_image
             
             barycentric = self.barycentric_image
-    
-            result1 = common.dImage_wrt_2dVerts(depth, visible, visibility, barycentric, self.frustum['width'], self.frustum['height'], self.v.r.size/3, self.f)
+
+            if self.overdraw:
+                result1 = common.dImage_wrt_2dVerts_bnd(depth, visible, visibility, barycentric, self.frustum['width'], self.frustum['height'], self.v.r.size/3, self.f, self.boundaryid_image != 4294967295)
+            else:
+                result1 = common.dImage_wrt_2dVerts(depth, visible, visibility, barycentric, self.frustum['width'], self.frustum['height'], self.v.r.size/3, self.f)
+
+            # result1 = common.dImage_wrt_2dVerts(depth, visible, visibility, barycentric, self.frustum['width'], self.frustum['height'], self.v.r.size/3, self.f)
 
             return result1
 
@@ -94,6 +183,9 @@ class DepthRenderer(Ch):
         if 'frustum' in which or 'camera' in which:
             setup_camera(self.glb, self.camera, self.frustum)
             setup_camera(self.glf, self.camera, self.frustum)
+
+        if not hasattr(self, 'overdraw'):
+            self.overdraw = True
             
         assert(self.v is self.camera.v)
             
@@ -105,7 +197,9 @@ class DepthRenderer(Ch):
         #else:
         #    assert(self.v is self.camera.v)
 
-    @depends_on('f', 'camera', 'background_image')
+
+
+    @depends_on(dterms+terms)
     def depth_image(self):
         self._call_on_changed()
 
@@ -125,18 +219,7 @@ class DepthRenderer(Ch):
             result = result2
         
         return result
-        
 
-    @depends_on('f', 'camera')
-    def barycentric_image(self):
-        self._call_on_changed()
-        return draw_barycentric_image(self.glf, self.camera.v.r, self.f)
-    
-    @depends_on('f', 'camera')
-    def visibility_image(self):
-        self._call_on_changed()
-        return draw_visibility_image(self.glb, self.camera.v.r, self.f)
-    
     def getDepthMesh(self, depth_image=None):
         self._call_on_changed() # make everything is up-to-date
         v = self.glb.getDepthCloud(depth_image)
@@ -154,17 +237,9 @@ class DepthRenderer(Ch):
         return v, f
 
 
-class BoundaryRenderer(Ch):
+class BoundaryRenderer(BaseRenderer):
     terms = 'f', 'frustum', 'num_channels'
     dterms = 'camera',
-
-    @property
-    def v(self):
-        return self.camera.v
-
-    @v.setter
-    def v(self, newval):
-        self.camera.v = newval
 
     def compute_r(self):
         return self.color_image
@@ -201,61 +276,28 @@ class BoundaryRenderer(Ch):
         #     self.camera.v = self.v
 
 
-    @depends_on('f', 'frustum', 'camera', 'v')
-    def boundarybool_image(self):
-        self._call_on_changed()
-
-        boundaryid_image = self.boundaryid_image
-        return np.asarray(boundaryid_image != 4294967295, np.float64).reshape(boundaryid_image.shape)
 
 
-    @depends_on(terms+dterms)
-    def boundaryid_image(self):
-        self._call_on_changed()
-        return draw_boundaryid_image(self.glb, self.v.r, self.f, self.vpe, self.fpe, self.camera)
+    # @depends_on('f', 'camera', 'v')
+    # def barycentric_image(self):
+    #     self._call_on_changed()
+    #     return draw_barycentric_image(self.glf, self.v.r, self.vpe)
+    #
 
-    @depends_on('f', 'camera', 'v')
-    def barycentric_image(self):
-        self._call_on_changed()
-        return draw_barycentric_image(self.glf, self.v.r, self.vpe)
-    
-    @depends_on('f')
-    def primitives_per_edge(self):
-        v=self.v.r.reshape((-1,3))
-        f=self.f
-        fpe = get_faces_per_edge(v, f)
-        vpe = get_vertices_per_edge(v, f, fpe)
-        return fpe, vpe
-
-    @property
-    def vpe(self):
-        return self.primitives_per_edge[1]
-    
-    @property
-    def fpe(self):
-        return self.primitives_per_edge[0]
-    
     @depends_on(terms+dterms)
     def color_image(self):
         self._call_on_changed()
-        result = self.boundarybool_image
+        result = self.boundarybool_image.astype(np.float64)
         return np.dstack([result for i in range(self.num_channels)])
 
 
 
-class ColoredRenderer(Ch):
+class ColoredRenderer(BaseRenderer):
     terms = 'f', 'frustum', 'background_image', 'overdraw'
     dterms = 'vc', 'camera', 'bgcolor'        
     
     
-    @property
-    def v(self):
-        return self.camera.v
-    
-    @v.setter
-    def v(self, newval):
-        self.camera.v = newval
-    
+
     def compute_r(self):
         return self.color_image.reshape((self.frustum['height'], self.frustum['width'], -1))
         
@@ -327,24 +369,6 @@ class ColoredRenderer(Ch):
         xs = relevant_pixels % vim.shape[1]
         ys = relevant_pixels / vim.shape[1]
         return cim2[np.min(ys):np.max(ys), np.min(xs):np.max(xs), :]
-        
-
-    @depends_on('f')
-    def primitives_per_edge(self):
-        v=self.v.r.reshape((-1,3))
-        f=self.f
-        fpe = get_faces_per_edge(v, f)
-        vpe = get_vertices_per_edge(v, f, fpe)
-        return fpe, vpe
-
-    @property
-    def vpe(self):
-        return self.primitives_per_edge[1]
-    
-    @property
-    def fpe(self):
-        return self.primitives_per_edge[0]
-    
 
 
     @depends_on('f', 'camera', 'vc')
@@ -394,70 +418,12 @@ class ColoredRenderer(Ch):
         gl.PolygonMode(GL_FRONT_AND_BACK, GL_LINE)
         overdraw = self.draw_color_image(gl)
         gl.PolygonMode(GL_FRONT_AND_BACK, GL_FILL)
-        return overdraw*self.boundarybool_image + no_overdraw*(1-self.boundarybool_image)
+        boundarybool_image = np.atleast_3d(self.boundarybool_image)
+        return overdraw*boundarybool_image + no_overdraw*(1-boundarybool_image)
 
 
 
-    @depends_on('f', 'frustum', 'camera', 'overdraw')
-    def barycentric_image(self):
-        self._call_on_changed()
-        without_overdraw = draw_barycentric_image(self.glf, self.v.r, self.f)
-        if not self.overdraw:
-            return without_overdraw
 
-        self.glf.PolygonMode(GL_FRONT_AND_BACK, GL_LINE)
-        overdraw = draw_barycentric_image(self.glf, self.v.r, self.f)
-        self.glf.PolygonMode(GL_FRONT_AND_BACK, GL_FILL)
-
-        bbi = self.boundarybool_image
-        return bbi * overdraw + (1. - bbi) * without_overdraw
-
-    @depends_on('f', 'frustum', 'camera', 'overdraw')
-    def visibility_image(self):
-        self._call_on_changed()
-
-        self.glb.Disable(GL_TEXTURE_2D)
-        self.glb.DisableClientState(GL_TEXTURE_COORD_ARRAY)
-
-        if not self.overdraw:
-            return draw_visibility_image(self.glb, self.v.r, self.f)
-
-        result = np.atleast_3d(draw_visibility_image(self.glb, self.v.r, self.f))
-        rr = result.ravel()
-        faces_to_draw = np.unique(rr[rr != 4294967295])
-        self.glb.PolygonMode(GL_FRONT_AND_BACK, GL_LINE)
-        result2 = np.atleast_3d(draw_visibility_image(self.glb, self.v.r, self.f[faces_to_draw]))
-        self.glb.PolygonMode(GL_FRONT_AND_BACK, GL_FILL)
-        bbi = self.boundarybool_image
-
-        result2 = result2.ravel()
-        idxs = result2 != 4294967295
-        result2[idxs] = faces_to_draw[result2[idxs]]
-
-        if False:
-            result2[result2==4294967295] = 0
-            import matplotlib.pyplot as plt
-            result2 = result2.reshape(result.shape[:2])
-            plt.figure()
-            plt.subplot(121)
-            plt.imshow(result.squeeze())
-            plt.subplot(122)
-            plt.imshow(result2.squeeze())
-
-        result2 = np.atleast_3d(result2.reshape(result.shape[:2]))
-        result = result2 * bbi + result * (1 - bbi)
-
-        return result
-
-
-    @depends_on(dterms+terms)
-    def boundaryid_image(self):
-        self._call_on_changed()
-        return draw_boundaryid_image(self.glb, self.v.r, self.f, self.vpe, self.fpe, self.camera)
-
-    @property
-    def boundarybool_image(self):
-        return np.atleast_3d(self.boundaryid_image != 4294967295)
 
     @depends_on('f', 'frustum', 'camera')
     def boundary_images(self):
@@ -490,14 +456,6 @@ class TexturedRenderer(ColoredRenderer):
         if hasattr(self, 'textureID'):
             arr = np.asarray(np.array([self.textureID]), np.uint32)
             self.glf.DeleteTextures(arr)
-
-    @property
-    def v(self):
-        return self.camera.v
-    
-    @v.setter
-    def v(self, newval):
-        self.camera.v = newval
 
 
     def compute_dr_wrt(self, wrt):
@@ -559,6 +517,7 @@ class TexturedRenderer(ColoredRenderer):
         gl.DisableClientState(GL_TEXTURE_COORD_ARRAY)
     
 
+    # TODO: can this not be inherited from base? turning off texture mapping in that instead?
     @depends_on(dterms+terms)
     def boundaryid_image(self):
         self._call_on_changed()

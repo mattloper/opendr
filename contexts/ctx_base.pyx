@@ -293,7 +293,7 @@ cdef class OsContextBase(object):
         cdef np.ndarray[float, ndim=2] M
         M = np.asarray(np.eye(4), dtype=np.float32, order='F')
 
-        if camera_space:
+        if camera_space or artificial_depth is not None:
             M[:,1:3] *= -1 # to get into opencv coordinate system
         else:
             _glGetFloatv(GL_MODELVIEW_MATRIX, <GLfloat*>(&M[0,0]))
@@ -310,7 +310,7 @@ cdef class OsContextBase(object):
 
         result = np.dstack([xWanted, yWanted, zWanted])
         if artificial_depth != None:
-            result = result / np.atleast_3d(np.sqrt(np.sum(result**2, axis=2)))
+            result = result / np.atleast_3d(result[:,:,2])
             result = result * np.atleast_3d(artificial_depth)
 
         return result

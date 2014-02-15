@@ -25,7 +25,12 @@ def nangradients(arr):
     dx = np.concatenate((dx[:,1:,:], dx[:,:-1,:]), axis=3)
     dx = scipy.stats.nanmean(dx, axis=3)
 
-    gy, gx, _ = np.gradient(arr)
+    if arr.shape[2] > 1:
+        gy, gx, _ = np.gradient(arr)
+    else:
+        gy, gx = np.gradient(arr.squeeze())
+        gy = np.atleast_3d(gy)
+        gx = np.atleast_3d(gx)
     gy[1:-1,:,:] = -dy
     gx[:,1:-1,:] = -dx
 
@@ -65,7 +70,14 @@ def dImage_wrt_2dVerts_bnd(observed, visible, visibility, barycentric, image_wid
     obs_nonbnd = np.atleast_3d(observed) * bnd_nan
 
     ydiffnb, xdiffnb = nangradients(obs_nonbnd)
-    ydiffbnd, xdiffbnd, _ = np.gradient(observed)
+
+    observed = np.atleast_3d(observed)
+    if observed.shape[2] > 1:
+        ydiffbnd, xdiffbnd, _ = np.gradient(observed)
+    else:
+        ydiffbnd, xdiffbnd = np.gradient(observed.squeeze())
+        ydiffbnd = np.atleast_3d(ydiffbnd)
+        xdiffbnd = np.atleast_3d(xdiffbnd)
 
     xdiffnb = -xdiffnb
     ydiffnb = -ydiffnb
@@ -288,7 +300,43 @@ def dr_wrt_vc(visible, visibility, f, barycentric, frustum, v_size):
     return result
 
 
-def draw_visibility_image(gl, v, f):
+def draw_visibility_image(gl, v, f, boundarybool_image=None):
+    v = np.asarray(v)
+    gl.Disable(GL_TEXTURE_2D)
+    gl.DisableClientState(GL_TEXTURE_COORD_ARRAY)
+
+    result = draw_visibility_image_internal(gl, v, f)
+    if boundarybool_image is None:
+        return result
+
+    rr = result.ravel()
+    faces_to_draw = np.unique(rr[rr != 4294967295])
+    gl.PolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+    result2 = draw_visibility_image_internal(gl, v, f[faces_to_draw])
+    gl.PolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+    bbi = boundarybool_image
+
+    result2 = result2.ravel()
+    idxs = result2 != 4294967295
+    result2[idxs] = faces_to_draw[result2[idxs]]
+
+    if False:
+        result2[result2==4294967295] = 0
+        import matplotlib.pyplot as plt
+        result2 = result2.reshape(result.shape[:2])
+        plt.figure()
+        plt.subplot(121)
+        plt.imshow(result.squeeze())
+        plt.subplot(122)
+        plt.imshow(result2.squeeze())
+
+    result2 = result2.reshape(result.shape[:2])
+    result = result2 * bbi + result * (1 - bbi)
+    return result
+
+
+
+def draw_visibility_image_internal(gl, v, f):
     """Assumes camera is set up correctly in gl context."""
     gl.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -347,7 +395,21 @@ def draw_colored_primitives(gl, v, f, fc=None):
         gl.DrawElements(GL_LINES, np.arange(f.size, dtype=np.uint32).ravel())
 
 
-def draw_barycentric_image(gl, v, f):
+def draw_barycentric_image(gl, v, f, boundarybool_image=None):
+    v = np.asarray(v)
+    without_overdraw = draw_barycentric_image_internal(gl, v, f)
+    if boundarybool_image is None:
+        return without_overdraw
+
+    gl.PolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+    overdraw = draw_barycentric_image_internal(gl, v, f)
+    gl.PolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+
+    bbi = np.atleast_3d(boundarybool_image)
+    return bbi * overdraw + (1. - bbi) * without_overdraw
+
+
+def draw_barycentric_image_internal(gl, v, f):
 
     gl.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     gl.EnableClientState(GL_VERTEX_ARRAY);
