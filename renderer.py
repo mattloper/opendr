@@ -37,8 +37,6 @@ class BaseRenderer(Ch):
     terms = ['f', 'frustum','overdraw']
     dterms = ['camera', 'v']
 
-
-    # Standard methods
     @depends_on('f') # not v: specifically, it depends only on the number of vertices, not on the values in v
     def primitives_per_edge(self):
         v=self.v.r.reshape((-1,3))
@@ -196,57 +194,6 @@ class DepthRenderer(BaseRenderer):
         f = np.hstack((v0, v1, v2, v1, v3, v2)).reshape((-1,3))        
         return v, f
 
-    # # Standard methods
-    # #@depends_on('f') # not v: specifically, it depends only on the number of vertices, not on the values in v
-    # @property
-    # def primitives_per_edge(self):
-    #     v=self.v.r.reshape((-1,3))
-    #     f=self.f
-    #     vpe = get_vertices_per_edge(v, f)
-    #     fpe = get_faces_per_edge(v, f, vpe)
-    #     return fpe, vpe
-    #
-    # #@depends_on('f', 'frustum', 'camera', 'overdraw')
-    # @property
-    # def barycentric_image(self):
-    #     self._call_on_changed()
-    #     return draw_barycentric_image(self.glf, self.v.r, self.f, self.boundarybool_image if self.overdraw else None)
-    #
-    # #@depends_on(terms+dterms)
-    # @property
-    # def boundaryid_image(self):
-    #     self._call_on_changed()
-    #     return draw_boundaryid_image(self.glb, self.v.r, self.f, self.vpe, self.fpe, self.camera)
-    #
-    # #@depends_on('f', 'frustum', 'camera', 'overdraw')
-    # @property
-    # def visibility_image(self):
-    #     self._call_on_changed()
-    #     return draw_visibility_image(self.glb, self.v.r, self.f, self.boundarybool_image if self.overdraw else None)
-    #
-    # #@depends_on(terms+dterms)
-    # @property
-    # def boundarybool_image(self):
-    #     self._call_on_changed()
-    #     boundaryid_image = self.boundaryid_image
-    #     return np.asarray(boundaryid_image != 4294967295, np.uint32).reshape(boundaryid_image.shape)
-
-    # @property
-    # def v(self):
-    #     return self.camera.v
-    #
-    # @v.setter
-    # def v(self, newval):
-    #     self.camera.v = newval
-    #
-    # @property
-    # def vpe(self):
-    #     return self.primitives_per_edge[1]
-    #
-    # @property
-    # def fpe(self):
-    #     return self.primitives_per_edge[0]
-
 
 
 class BoundaryRenderer(BaseRenderer):
@@ -291,64 +238,11 @@ class BoundaryRenderer(BaseRenderer):
 
 
 
-    # @depends_on('f', 'camera', 'v')
-    # def barycentric_image(self):
-    #     self._call_on_changed()
-    #     return draw_barycentric_image(self.glf, self.v.r, self.vpe)
-    #
-
     @depends_on(terms+dterms)
     def color_image(self):
         self._call_on_changed()
         result = self.boundarybool_image.astype(np.float64)
         return np.dstack([result for i in range(self.num_channels)])
-
-    # # Standard methods
-    # @depends_on('f') # not v: specifically, it depends only on the number of vertices, not on the values in v
-    # def primitives_per_edge(self):
-    #     v=self.v.r.reshape((-1,3))
-    #     f=self.f
-    #     vpe = get_vertices_per_edge(v, f)
-    #     fpe = get_faces_per_edge(v, f, vpe)
-    #     return fpe, vpe
-    #
-    # @depends_on('f', 'frustum', 'camera', 'overdraw')
-    # def barycentric_image(self):
-    #     self._call_on_changed()
-    #     return draw_barycentric_image(self.glf, self.v.r, self.f, self.boundarybool_image if self.overdraw else None)
-    #
-    # @depends_on(terms+dterms)
-    # def boundaryid_image(self):
-    #     self._call_on_changed()
-    #     return draw_boundaryid_image(self.glb, self.v.r, self.f, self.vpe, self.fpe, self.camera)
-    #
-    # @depends_on('f', 'frustum', 'camera', 'overdraw')
-    # def visibility_image(self):
-    #     self._call_on_changed()
-    #     return draw_visibility_image(self.glb, self.v.r, self.f, self.boundarybool_image if self.overdraw else None)
-    #
-    # @depends_on(terms+dterms)
-    # def boundarybool_image(self):
-    #     self._call_on_changed()
-    #     boundaryid_image = self.boundaryid_image
-    #     return np.asarray(boundaryid_image != 4294967295, np.uint32).reshape(boundaryid_image.shape)
-
-    # @property
-    # def v(self):
-    #     return self.camera.v
-    #
-    # @v.setter
-    # def v(self, newval):
-    #     self.camera.v = newval
-    #
-    # @property
-    # def vpe(self):
-    #     return self.primitives_per_edge[1]
-    #
-    # @property
-    # def fpe(self):
-    #     return self.primitives_per_edge[0]
-
 
 
 class ColoredRenderer(BaseRenderer):
@@ -502,53 +396,6 @@ class ColoredRenderer(BaseRenderer):
         except:
             import pdb; pdb.set_trace()
             
-    # # Standard methods
-    # @depends_on('f') # not v: specifically, it depends only on the number of vertices, not on the values in v
-    # def primitives_per_edge(self):
-    #     v=self.v.r.reshape((-1,3))
-    #     f=self.f
-    #     vpe = get_vertices_per_edge(v, f)
-    #     fpe = get_faces_per_edge(v, f, vpe)
-    #     return fpe, vpe
-    #
-    # @depends_on('f', 'frustum', 'camera', 'overdraw')
-    # def barycentric_image(self):
-    #     self._call_on_changed()
-    #     return draw_barycentric_image(self.glf, self.v.r, self.f, self.boundarybool_image if self.overdraw else None)
-    #
-    # @depends_on(terms+dterms)
-    # def boundaryid_image(self):
-    #     self._call_on_changed()
-    #     return draw_boundaryid_image(self.glb, self.v.r, self.f, self.vpe, self.fpe, self.camera)
-    #
-    # @depends_on('f', 'frustum', 'camera', 'overdraw')
-    # def visibility_image(self):
-    #     self._call_on_changed()
-    #     return draw_visibility_image(self.glb, self.v.r, self.f, self.boundarybool_image if self.overdraw else None)
-    #
-    # @depends_on(terms+dterms)
-    # def boundarybool_image(self):
-    #     self._call_on_changed()
-    #     boundaryid_image = self.boundaryid_image
-    #     return np.asarray(boundaryid_image != 4294967295, np.uint32).reshape(boundaryid_image.shape)
-
-    # @property
-    # def v(self):
-    #     return self.camera.v
-    #
-    # @v.setter
-    # def v(self, newval):
-    #     self.camera.v = newval
-    #
-    # @property
-    # def vpe(self):
-    #     return self.primitives_per_edge[1]
-    #
-    # @property
-    # def fpe(self):
-    #     return self.primitives_per_edge[0]
-
-
 
         
 class TexturedRenderer(ColoredRenderer):
@@ -682,52 +529,6 @@ class TexturedRenderer(ColoredRenderer):
         self.texture_mapping_off(gl)
         return np.asarray(deepcopy(gl.getImage()), np.float64)
         
-    # Standard methods
-    # @depends_on('f') # not v: specifically, it depends only on the number of vertices, not on the values in v
-    # def primitives_per_edge(self):
-    #     v=self.v.r.reshape((-1,3))
-    #     f=self.f
-    #     vpe = get_vertices_per_edge(v, f)
-    #     fpe = get_faces_per_edge(v, f, vpe)
-    #     return fpe, vpe
-    #
-    # @depends_on('f', 'frustum', 'camera', 'overdraw')
-    # def barycentric_image(self):
-    #     self._call_on_changed()
-    #     return draw_barycentric_image(self.glf, self.v.r, self.f, self.boundarybool_image if self.overdraw else None)
-    #
-    # @depends_on(terms+dterms)
-    # def boundaryid_image(self):
-    #     self._call_on_changed()
-    #     return draw_boundaryid_image(self.glb, self.v.r, self.f, self.vpe, self.fpe, self.camera)
-    #
-    # @depends_on('f', 'frustum', 'camera', 'overdraw')
-    # def visibility_image(self):
-    #     self._call_on_changed()
-    #     return draw_visibility_image(self.glb, self.v.r, self.f, self.boundarybool_image if self.overdraw else None)
-    #
-    # @depends_on(terms+dterms)
-    # def boundarybool_image(self):
-    #     self._call_on_changed()
-    #     boundaryid_image = self.boundaryid_image
-    #     return np.asarray(boundaryid_image != 4294967295, np.uint32).reshape(boundaryid_image.shape)
-
-    # @property
-    # def v(self):
-    #     return self.camera.v
-    #
-    # @v.setter
-    # def v(self, newval):
-    #     self.camera.v = newval
-    #
-    # @property
-    # def vpe(self):
-    #     return self.primitives_per_edge[1]
-    #
-    # @property
-    # def fpe(self):
-    #     return self.primitives_per_edge[0]
-
 
 
 
