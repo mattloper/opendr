@@ -133,6 +133,7 @@ def halfsampler_for(shape):
     
 
 def filter_for_nopadding(shape, kernel):
+    assert(len(shape)==3)
     new_shape = (shape - np.array([kernel.shape[0] - 1, kernel.shape[1] - 1, 0])).astype(np.uint32)
 
 
