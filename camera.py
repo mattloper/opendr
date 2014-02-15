@@ -10,6 +10,7 @@ See LICENCE.txt for licensing and contact information.
 
 __all__ = ['ProjectPoints3D', 'ProjectPoints', 'RigidTransform']
 
+import chumpy as ch
 from chumpy import depends_on, Ch
 import cv2
 import numpy as np
@@ -104,6 +105,21 @@ class ProjectPoints(Ch):
             JS = np.asarray(np.repeat(np.arange(self.v.r.size).reshape((-1,3)), 2, axis=0), order='C').ravel()
             result = sp.csc_matrix((data, (IS, JS)))
             return result
+
+    def unproject_points(self, uvd):
+        # FIXME: replace with something faster. But it must respect nonzero distortion.
+        cam = ProjectPoints3D(**{k: getattr(self, k)  for k in self.dterms if hasattr(self, k)})
+        cam.v = np.ones_like(uvd)
+        ch.minimize(cam - uvd, x0=[cam.v], method='dogleg', options={'disp': 0})
+        return cam.v.r
+
+    def unproject_depth_image(self, depth_image):
+        us = np.arange(depth_image.size) % depth_image.shape[1]
+        vs = np.arange(depth_image.size) // depth_image.shape[1]
+        ds = depth_image.ravel()
+        uvd = ch.array(np.vstack((us.ravel(), vs.ravel(), ds.ravel())).T)
+        xyz = self.unproject_points(uvd)
+        return xyz.reshape((depth_image.shape[0], depth_image.shape[1], -1))
 
     
     @depends_on('f','c')
