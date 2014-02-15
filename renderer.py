@@ -53,35 +53,35 @@ class BaseRenderer(Ch):
     def fpe(self):
         return self.primitives_per_edge[0]
 
-    # Standard methods
-    @depends_on('f') # not v: specifically, it depends only on the number of vertices, not on the values in v
-    def primitives_per_edge(self):
-        v=self.v.r.reshape((-1,3))
-        f=self.f
-        vpe = get_vertices_per_edge(v, f)
-        fpe = get_faces_per_edge(v, f, vpe)
-        return fpe, vpe
-
-    @depends_on('f', 'frustum', 'camera', 'overdraw')
-    def barycentric_image(self):
-        self._call_on_changed()
-        return draw_barycentric_image(self.glf, self.v.r, self.f, self.boundarybool_image if self.overdraw else None)
-
-    @depends_on(terms+dterms)
-    def boundaryid_image(self):
-        self._call_on_changed()
-        return draw_boundaryid_image(self.glb, self.v.r, self.f, self.vpe, self.fpe, self.camera)
-
-    @depends_on('f', 'frustum', 'camera', 'overdraw')
-    def visibility_image(self):
-        self._call_on_changed()
-        return draw_visibility_image(self.glb, self.v.r, self.f, self.boundarybool_image if self.overdraw else None)
-
-    @depends_on(terms+dterms)
-    def boundarybool_image(self):
-        self._call_on_changed()
-        boundaryid_image = self.boundaryid_image
-        return np.asarray(boundaryid_image != 4294967295, np.uint32).reshape(boundaryid_image.shape)
+    # # Standard methods
+    # @depends_on('f') # not v: specifically, it depends only on the number of vertices, not on the values in v
+    # def primitives_per_edge(self):
+    #     v=self.v.r.reshape((-1,3))
+    #     f=self.f
+    #     vpe = get_vertices_per_edge(v, f)
+    #     fpe = get_faces_per_edge(v, f, vpe)
+    #     return fpe, vpe
+    #
+    # @depends_on('f', 'frustum', 'camera', 'overdraw')
+    # def barycentric_image(self):
+    #     self._call_on_changed()
+    #     return draw_barycentric_image(self.glf, self.v.r, self.f, self.boundarybool_image if self.overdraw else None)
+    #
+    # @depends_on(terms+dterms)
+    # def boundaryid_image(self):
+    #     self._call_on_changed()
+    #     return draw_boundaryid_image(self.glb, self.v.r, self.f, self.vpe, self.fpe, self.camera)
+    #
+    # @depends_on('f', 'frustum', 'camera', 'overdraw')
+    # def visibility_image(self):
+    #     self._call_on_changed()
+    #     return draw_visibility_image(self.glb, self.v.r, self.f, self.boundarybool_image if self.overdraw else None)
+    #
+    # @depends_on(terms+dterms)
+    # def boundarybool_image(self):
+    #     self._call_on_changed()
+    #     boundaryid_image = self.boundaryid_image
+    #     return np.asarray(boundaryid_image != 4294967295, np.uint32).reshape(boundaryid_image.shape)
 
 
 
@@ -170,13 +170,10 @@ class DepthRenderer(BaseRenderer):
 
         result = np.asarray(deepcopy(gl.getDepth()), np.float64)
 
-        if hasattr(self, 'background_image'):            
-            visibility = self.visibility_image
-            visible = np.nonzero(visibility.ravel() != 4294967295)[0]
-            result2 = np.require(self.background_image.copy(), dtype=np.float64)
-            result2.ravel()[visible] = result.ravel()[visible]
-            result = result2
-        
+        if hasattr(self, 'background_image'):
+            tmp = np.concatenate((np.atleast_3d(result), np.atleast_3d(self.background_image)), axis=2)
+            result = np.min(tmp, axis=2)
+
         return result
 
     def getDepthMesh(self, depth_image=None):
