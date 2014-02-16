@@ -7,6 +7,9 @@ visualize = False
 
 class TestDepthRenderer(unittest.TestCase):
 
+    def setUp(self):
+        np.random.seed(0)
+
     def test_depth_image(self):
         # Create renderer
         import chumpy as ch
@@ -28,13 +31,6 @@ class TestDepthRenderer(unittest.TestCase):
         # tm = time.time()
         # rn.r
         # print 'took %es' % (time.time() - tm)
-
-        # Show it
-        # if visualize:
-        #     import matplotlib.pyplot as plt
-        #     plt.ion()
-        #     plt.imshow(rn.r)
-        #     plt.show()
 
         # print np.min(rn.r.ravel())
         # print np.max(rn.r.ravel())
@@ -87,12 +83,9 @@ class TestDepthRenderer(unittest.TestCase):
                 plt.imshow(dr_emp)
                 plt.clim(-.01,.01)
                 plt.title('pred')
-                # cv2.imshow('pred%d' % (which,), dr_pred / np.max(dr_emp.ravel())*200.)
-                # cv2.imshow('emp%d' % (which,), dr_emp / np.max(dr_emp.ravel())*200.)
 
     def test_derivatives2(self):
         import chumpy as ch
-        from chumpy.utils import row
         import numpy as np
         from opendr.renderer import DepthRenderer
 
@@ -123,7 +116,7 @@ class TestDepthRenderer(unittest.TestCase):
             r2 = rn.r
             dr_emp = r2 - r1
 
-            print np.mean(np.abs(dr_pred-dr_emp))
+            #print np.mean(np.abs(dr_pred-dr_emp))
 
             self.assertTrue(np.mean(np.abs(dr_pred-dr_emp)) < .019)
 
@@ -138,12 +131,6 @@ class TestDepthRenderer(unittest.TestCase):
                 plt.title('pred')
                 plt.draw()
                 plt.show()
-                # cv2.imshow('pred%d' % (which,), dr_pred / np.max(dr_emp.ravel())*200.)
-                # cv2.imshow('emp%d' % (which,), dr_emp / np.max(dr_emp.ravel())*200.)
-            # if True: # visualize:
-            #     import cv2
-            #     cv2.imshow('pred%d' % (which,), dr_pred / np.max(dr_emp.ravel())*200.)
-            #     cv2.imshow('emp%d' % (which,), dr_emp / np.max(dr_emp.ravel())*200.)
 
 if __name__ == '__main__':
     visualize = True
