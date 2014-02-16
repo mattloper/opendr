@@ -102,12 +102,11 @@ class DepthRenderer(BaseRenderer):
         
         visibility = self.visibility_image
         visible = np.nonzero(visibility.ravel() != 4294967295)[0]
+        barycentric = self.barycentric_image
         if wrt is self.camera:
             
             shape = visibility.shape        
             depth = self.depth_image
-            
-            barycentric = self.barycentric_image
 
             if self.overdraw:
                 result1 = common.dImage_wrt_2dVerts_bnd(depth, visible, visibility, barycentric, self.frustum['width'], self.frustum['height'], self.v.r.size/3, self.f, self.boundaryid_image != 4294967295)
@@ -123,6 +122,8 @@ class DepthRenderer(BaseRenderer):
             JS = col(self.f[visibility.ravel()[visible]].ravel())
             JS = np.hstack((JS*3, JS*3+1, JS*3+2)).ravel()
 
+            # FIXME: there should be a faster way to get the camera axis.
+            # But it should be carefully tested with distortion present!
             pts = np.array([
                 [self.camera.c.r[0], self.camera.c.r[1], 2],
                 [self.camera.c.r[0], self.camera.c.r[1], 1]
@@ -130,7 +131,18 @@ class DepthRenderer(BaseRenderer):
             pts = self.camera.unproject_points(pts)
             cam_axis = pts[0,:] - pts[1,:]
 
-            data = np.tile(row(cam_axis), (IS.size/3,1)).ravel()/3.
+            if True: # use barycentric coordinates (correct way)
+                w = visibility.shape[1]
+                pxs = np.asarray(visible % w, np.int32)
+                pys = np.asarray(np.floor(np.floor(visible) / w), np.int32)
+                bc0 = col(barycentric[pys, pxs, 0])
+                bc1 = col(barycentric[pys, pxs, 1])
+                bc2 = col(barycentric[pys, pxs, 2])
+                bc = np.hstack((bc0,bc0,bc0,bc1,bc1,bc1,bc2,bc2,bc2)).ravel()
+            else: # each vert contributes equally (an approximation)
+                bc = 1. / 3.
+
+            data = np.tile(row(cam_axis), (IS.size/3,1)).ravel() * bc
             result2 = sp.csc_matrix((data, (IS, JS)), shape=(self.frustum['height']*self.frustum['width'], self.v.r.size))
             return result2
             # rays = self.glb.getDepthCloud(1.5*np.ones((self.frustum['height'],self.frustum['width']))) - self.glb.getDepthCloud(0.5*np.ones((self.frustum['height'],self.frustum['width'])))
