@@ -119,14 +119,30 @@ class DepthRenderer(BaseRenderer):
             return result1
 
         elif wrt is self.v:
-            return None
             IS = np.tile(col(visible), (1, 9)).ravel()
             JS = col(self.f[visibility.ravel()[visible]].ravel())
             JS = np.hstack((JS*3, JS*3+1, JS*3+2)).ravel()
-            rays = self.glb.getDepthCloud(1.5*np.ones((self.frustum['height'],self.frustum['width']))) - self.glb.getDepthCloud(0.5*np.ones((self.frustum['height'],self.frustum['width'])))
-            data = np.tile(rays[visible]/3., (1,3)).ravel()
+
+            pts = np.array([
+                [self.camera.c.r[0], self.camera.c.r[1], 2],
+                [self.camera.c.r[0], self.camera.c.r[1], 1]
+            ])
+            pts = self.camera.unproject_points(pts)
+            cam_axis = pts[0,:] - pts[1,:]
+
+            data = np.tile(row(cam_axis), (IS.size/3,1)).ravel()/3.
             result2 = sp.csc_matrix((data, (IS, JS)), shape=(self.frustum['height']*self.frustum['width'], self.v.r.size))
-            return -result2
+            return result2
+            # rays = self.glb.getDepthCloud(1.5*np.ones((self.frustum['height'],self.frustum['width']))) - self.glb.getDepthCloud(0.5*np.ones((self.frustum['height'],self.frustum['width'])))
+
+            # return None
+            # IS = np.tile(col(visible), (1, 9)).ravel()
+            # JS = col(self.f[visibility.ravel()[visible]].ravel())
+            # JS = np.hstack((JS*3, JS*3+1, JS*3+2)).ravel()
+            # rays = self.glb.getDepthCloud(1.5*np.ones((self.frustum['height'],self.frustum['width']))) - self.glb.getDepthCloud(0.5*np.ones((self.frustum['height'],self.frustum['width'])))
+            # data = np.tile(rays[visible]/3., (1,3)).ravel()
+            # result2 = sp.csc_matrix((data, (IS, JS)), shape=(self.frustum['height']*self.frustum['width'], self.v.r.size))
+            # return -result2
             
     
     def on_changed(self, which):
@@ -158,9 +174,7 @@ class DepthRenderer(BaseRenderer):
         #    assert(self.v is self.camera.v)
 
 
-
-    #@depends_on(dterms+terms)
-    @property
+    @depends_on(dterms+terms)
     def depth_image(self):
         self._call_on_changed()
 
