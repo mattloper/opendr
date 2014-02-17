@@ -107,11 +107,19 @@ class ProjectPoints(Ch):
             return result
 
     def unproject_points(self, uvd):
-        # FIXME: replace with something faster. But it must respect nonzero distortion.
         cam = ProjectPoints3D(**{k: getattr(self, k)  for k in self.dterms if hasattr(self, k)})
-        cam.v = np.ones_like(uvd)
-        ch.minimize(cam - uvd, x0=[cam.v], method='dogleg', options={'disp': 0})
-        return cam.v.r
+
+        if False: # slow way, probably not so good
+            cam.v = np.ones_like(uvd)
+            ch.minimize(cam - uvd, x0=[cam.v], method='dogleg', options={'disp': 0})
+            result = cam.v.r
+        else:
+            xy_undistorted_camspace = cv2.undistortPoints(np.asarray(uvd[:,:2].reshape((1,-1,2)).copy()), np.asarray(cam.camera_mtx), cam.k.r)
+            xyz_camera_space = np.hstack((xy_undistorted_camspace.squeeze(), col(uvd[:,2])))
+            xyz_camera_space[:,:2] *= col(xyz_camera_space[:,2]) # scale x,y by z
+            other_answer = xyz_camera_space - row(cam.view_mtx[:,3]) # translate
+            result = other_answer.dot(cam.view_mtx[:,:3]) # rotate
+        return result
 
     def unproject_depth_image(self, depth_image):
         us = np.arange(depth_image.size) % depth_image.shape[1]
