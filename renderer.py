@@ -145,17 +145,7 @@ class DepthRenderer(BaseRenderer):
             data = np.tile(row(cam_axis), (IS.size/3,1)).ravel() * bc
             result2 = sp.csc_matrix((data, (IS, JS)), shape=(self.frustum['height']*self.frustum['width'], self.v.r.size))
             return result2
-            # rays = self.glb.getDepthCloud(1.5*np.ones((self.frustum['height'],self.frustum['width']))) - self.glb.getDepthCloud(0.5*np.ones((self.frustum['height'],self.frustum['width'])))
 
-            # return None
-            # IS = np.tile(col(visible), (1, 9)).ravel()
-            # JS = col(self.f[visibility.ravel()[visible]].ravel())
-            # JS = np.hstack((JS*3, JS*3+1, JS*3+2)).ravel()
-            # rays = self.glb.getDepthCloud(1.5*np.ones((self.frustum['height'],self.frustum['width']))) - self.glb.getDepthCloud(0.5*np.ones((self.frustum['height'],self.frustum['width'])))
-            # data = np.tile(rays[visible]/3., (1,3)).ravel()
-            # result2 = sp.csc_matrix((data, (IS, JS)), shape=(self.frustum['height']*self.frustum['width'], self.v.r.size))
-            # return -result2
-            
     
     def on_changed(self, which):
 
@@ -176,14 +166,6 @@ class DepthRenderer(BaseRenderer):
             self.overdraw = True
             
         assert(self.v is self.camera.v)
-            
-        #if ('v' in which and hasattr(self, 'camera')) or ('camera' in which and hasattr(self, 'v')):
-        #    self.camera.v = self.v
-            
-        #if ('v' in which and hasattr(self, 'camera')): 
-        #    self.camera.v = self.v
-        #else:
-        #    assert(self.v is self.camera.v)
 
 
     @depends_on(dterms+terms)
@@ -193,14 +175,26 @@ class DepthRenderer(BaseRenderer):
         gl = self.glb
         gl.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        # use face colors if given
+        gl.PolygonMode(GL_FRONT_AND_BACK, GL_FILL)
         draw_noncolored_verts(gl, self.camera.v.r, self.f)
-
         result = np.asarray(deepcopy(gl.getDepth()), np.float64)
 
+        if self.overdraw:
+            gl.PolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+            draw_noncolored_verts(gl, self.camera.v.r, self.f)
+            overdraw = np.asarray(deepcopy(gl.getDepth()), np.float64)
+            gl.PolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+            boundarybool_image = self.boundarybool_image
+            result = overdraw*boundarybool_image + result*(1-boundarybool_image)
+
         if hasattr(self, 'background_image'):
-            tmp = np.concatenate((np.atleast_3d(result), np.atleast_3d(self.background_image)), axis=2)
-            result = np.min(tmp, axis=2)
+            if True: # has problems at boundaries, not sure why yet
+                bg_px = self.visibility_image == 4294967295
+                fg_px = 1 - bg_px
+                result = bg_px * self.background_image + fg_px * result
+            else:
+                tmp = np.concatenate((np.atleast_3d(result), np.atleast_3d(self.background_image)), axis=2)
+                result = np.min(tmp, axis=2)
 
         return result
 
@@ -258,8 +252,6 @@ class BoundaryRenderer(BaseRenderer):
             setup_camera(self.glb, self.camera, self.frustum)
             setup_camera(self.glf, self.camera, self.frustum)
             
-        # if 'v' in which and hasattr(self, 'camera') or 'camera' in which and hasattr(self, 'v'):
-        #     self.camera.v = self.v
 
 
 
@@ -364,27 +356,18 @@ class ColoredRenderer(BaseRenderer):
         self._call_on_changed()
         gl.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        if hasattr(self, 'background_image'):
-            gl.MatrixMode(GL_PROJECTION)
-            gl.PushMatrix()
-            gl.LoadIdentity()
-            gl.Ortho(0, gl.width, 0, gl.height)
-            gl.MatrixMode(GL_MODELVIEW)
-            gl.PushMatrix()
-            gl.LoadIdentity()
-            gl.RasterPos2i(0, 0)
-
-            gl.DrawPixels(self.background_image.shape[1],self.background_image.shape[0],GL_RGB,GL_FLOAT,np.asarray(self.background_image, np.float32))
-            gl.PopMatrix() # modelview
-            gl.MatrixMode(GL_PROJECTION)
-            gl.PopMatrix() # projection
-            assert (not gl.GetError())
-            gl.Clear(GL_DEPTH_BUFFER_BIT)
-
         # use face colors if given
         draw_colored_verts(gl, self.v.r, self.f, self.vc.r)
 
-        return np.asarray(deepcopy(gl.getImage()), np.float64)
+        result = np.asarray(deepcopy(gl.getImage()), np.float64)
+
+        if hasattr(self, 'background_image'):
+            bg_px = np.tile(np.atleast_3d(self.visibility_image) == 4294967295, (1,1,3))
+            fg_px = 1 - bg_px
+            result = bg_px * self.background_image + fg_px * result
+
+        return result
+
 
     @depends_on(dterms+terms)
     def color_image(self):
@@ -526,24 +509,6 @@ class TexturedRenderer(ColoredRenderer):
         gl = self.glf
         gl.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        if hasattr(self, 'background_image'):
-            gl.MatrixMode(GL_PROJECTION)
-            gl.PushMatrix()                
-            gl.LoadIdentity()
-            gl.Ortho(0, gl.width, 0, gl.height)
-            gl.MatrixMode(GL_MODELVIEW)
-            gl.PushMatrix()
-            gl.LoadIdentity()
-            gl.RasterPos2i(0, 0)
-            
-            gl.DrawPixels(self.background_image.shape[1],self.background_image.shape[0],GL_RGB,GL_FLOAT,np.asarray(self.background_image, np.float32))
-            gl.PopMatrix() # modelview
-            gl.MatrixMode(GL_PROJECTION)
-            gl.PopMatrix() # projection
-            assert (not gl.GetError())
-            gl.Clear(GL_DEPTH_BUFFER_BIT)        
-
-
         self.texture_mapping_on(gl, with_vertex_colors)
         gl.TexCoordPointerf(2,0, self.mesh_tex_coords.ravel())
         
@@ -553,8 +518,15 @@ class TexturedRenderer(ColoredRenderer):
         draw_colored_primitives(self.glf, self.v.r.reshape((-1,3)), self.f, colors)
 
         self.texture_mapping_off(gl)
-        return np.asarray(deepcopy(gl.getImage()), np.float64)
-        
+        result =  np.asarray(deepcopy(gl.getImage()), np.float64)
+
+        if hasattr(self, 'background_image'):
+            bg_px = np.tile(np.atleast_3d(self.visibility_image) == 4294967295, (1,1,3))
+            fg_px = 1 - bg_px
+            result = bg_px * self.background_image + fg_px * result
+
+        return result
+
 
 
 
