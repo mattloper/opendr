@@ -7,7 +7,10 @@ Author(s): Matthew Loper
 See LICENCE.txt for licensing and contact information.
 """
 
+__all__ = ['gaussian_pyramid', 'laplacian_pyramid']
+
 import cv2
+import chumpy as ch
 import numpy as np
 from copy import deepcopy
 import scipy.sparse as sp
@@ -40,7 +43,7 @@ def laplacian_pyramid(input_objective, imshape, normalization, n_levels, as_list
         
     output_objs.append(norm2(input_objective).reshape(imshape)) 
         
-    return output_objs if as_list else reduce(lambda x, y : x & y, output_objs)
+    return output_objs if as_list else reduce(lambda x, y : ch.concatenate((x.ravel(), y.ravel())), output_objs)
 
 
 
@@ -67,7 +70,7 @@ def gaussian_pyramid(input_objective, imshape, normalization, n_levels, as_list=
         output_objectives.append(norm2(cur_obj) if label is None else norm2(cur_obj) >> '%s%d' % (label,ik))
         
     if not as_list:
-        andit = lambda a : reduce(lambda x, y : x & y, a)
+        andit = lambda a : reduce(lambda x, y : ch.concatenate((x.ravel(), y.ravel())), a)
         output_objectives = andit(output_objectives)
 
     return output_objectives
