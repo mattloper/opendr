@@ -395,6 +395,29 @@ def draw_colored_primitives(gl, v, f, fc=None):
         gl.DrawElements(GL_LINES, np.arange(f.size, dtype=np.uint32).ravel())
 
 
+def draw_texcoord_image(glf, v, f, vt, ft, boundarybool_image=None):
+    gl = glf
+    gl.Disable(GL_TEXTURE_2D)
+    gl.DisableClientState(GL_TEXTURE_COORD_ARRAY)
+
+    gl.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    # want vtc: texture-coordinates per vertex (not per element in vc)
+    colors = vt[ft.ravel()]
+
+    colors = np.asarray(np.hstack((colors, col(colors[:,0]*0))), np.float64, order='C')
+    draw_colored_primitives(gl, v, f, colors)
+
+    if boundarybool_image is not None:
+        gl.PolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+        draw_colored_primitives(gl, v, f, colors)
+        gl.PolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+
+    result = np.asarray(deepcopy(gl.getImage()), np.float64, order='C')[:,:,:2].copy()
+    result[:,:,1] = 1. - result[:,:,1]
+    return result
+
+
 def draw_barycentric_image(gl, v, f, boundarybool_image=None):
     v = np.asarray(v)
     without_overdraw = draw_barycentric_image_internal(gl, v, f)

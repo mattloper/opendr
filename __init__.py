@@ -23,7 +23,7 @@ w, h = (320, 240)
 from opendr.camera import ProjectPoints
 rn.camera = ProjectPoints(v=m.v, rt=ch.zeros(3), t=ch.zeros(3), f=ch.array([w,w])/2., c=ch.array([w,h])/2., k=ch.zeros(5))
 rn.frustum = {'near': 1., 'far': 10., 'width': w, 'height': h}
-rn.set(v=m.v, f=m.f, vc=m.vc, texture_image=m.texture_image, ft=m.ft, vt=m.vt)
+rn.set(v=m.v, f=m.f, vc=m.vc, texture_image=m.texture_image.astype(ch.float)/255., ft=m.ft, vt=m.vt)
 
 # Show it
 import matplotlib.pyplot as plt

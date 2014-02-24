@@ -17,7 +17,7 @@ import platform
 import scipy.sparse as sp
 from copy import deepcopy
 from . import common
-from .common import draw_visibility_image, draw_barycentric_image, draw_colored_primitives
+from .common import draw_visibility_image, draw_barycentric_image, draw_colored_primitives, draw_texcoord_image
 from .topology import get_vertices_per_edge, get_faces_per_edge
 
 if platform.system()=='Darwin':
@@ -408,8 +408,8 @@ class ColoredRenderer(BaseRenderer):
 
         
 class TexturedRenderer(ColoredRenderer):
-    terms = 'f', 'frustum', 'texture_image', 'vt', 'ft', 'background_image', 'overdraw'
-    dterms = 'vc', 'camera', 'bgcolor'
+    terms = 'f', 'frustum', 'vt', 'ft', 'background_image', 'overdraw'
+    dterms = 'vc', 'camera', 'bgcolor', 'texture_image'
 
     def __del__(self):
         self.release_textures()
@@ -427,6 +427,28 @@ class TexturedRenderer(ColoredRenderer):
             cim = self.draw_color_image(with_vertex_colors=False).ravel()
             cim = sp.spdiags(row(cim), [0], cim.size, cim.size)
             result = cim.dot(result)
+        elif wrt is self.texture_image:
+            IS = np.nonzero(self.visibility_image.ravel() != 4294967295)[0]
+            JS = self.texcoord_image_quantized.ravel()[IS]
+
+            clr_im = self.draw_color_image(with_vertex_colors=True, with_texture_on=False)
+
+            if False:
+                cv2.imshow('clr_im', clr_im)
+                cv2.imshow('texmap', self.texture_image.r)
+                cv2.waitKey(1)
+
+            r = clr_im[:,:,0].ravel()[IS]
+            g = clr_im[:,:,1].ravel()[IS]
+            b = clr_im[:,:,2].ravel()[IS]
+            data = np.concatenate((r,g,b))
+
+            IS = np.concatenate((IS*3, IS*3+1, IS*3+2))
+            JS = np.concatenate((JS*3, JS*3+1, JS*3+2))
+
+
+            return sp.csc_matrix((data, (IS, JS)), shape=(self.r.size, wrt.r.size))
+
             
         return result
 
@@ -436,7 +458,7 @@ class TexturedRenderer(ColoredRenderer):
         # have to redo if frustum changes, b/c frustum triggers new context
         if 'texture_image' in which or 'frustum' in which:
             gl = self.glf
-            texture_data = np.array(self.texture_image, dtype='uint8', order='C')
+            texture_data = np.array(self.texture_image*255., dtype='uint8', order='C')
             tmp = np.zeros(2, dtype=np.uint32)
             
             self.release_textures()
@@ -504,14 +526,17 @@ class TexturedRenderer(ColoredRenderer):
         except:
             import pdb; pdb.set_trace()
 
-    def draw_color_image(self, with_vertex_colors=True):
+    def draw_color_image(self, with_vertex_colors=True, with_texture_on=True):
         self._call_on_changed()
         gl = self.glf
         gl.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        self.texture_mapping_on(gl, with_vertex_colors)
-        gl.TexCoordPointerf(2,0, self.mesh_tex_coords.ravel())
-        
+        if with_texture_on:
+            self.texture_mapping_on(gl, with_vertex_colors)
+            gl.TexCoordPointerf(2,0, self.mesh_tex_coords.ravel())
+        else:
+            self.texture_mapping_off(gl)
+
         colors = None
         if with_vertex_colors:
             colors = self.vc.r.reshape((-1,3))[self.f.ravel()]
@@ -526,6 +551,36 @@ class TexturedRenderer(ColoredRenderer):
             result = bg_px * self.background_image + fg_px * result
 
         return result
+
+    @depends_on('vt', 'ft', 'f', 'frustum', 'camera')
+    def texcoord_image_quantized(self):
+        texcoord_image = self.texcoord_image.copy()
+        texcoord_image[:,:,0] *= self.texture_image.shape[1]-1
+        texcoord_image[:,:,1] *= self.texture_image.shape[0]-1
+        texcoord_image = np.round(texcoord_image)
+        texcoord_image = texcoord_image[:,:,0] + texcoord_image[:,:,1]*self.texture_image.shape[1]
+        return texcoord_image
+
+
+    @depends_on('vt', 'ft', 'f', 'frustum', 'camera')
+    def texcoord_image(self):
+        return draw_texcoord_image(self.glf, self.v.r, self.f, self.vt, self.ft, self.boundarybool_image if self.overdraw else None)
+        # gl = self.glf
+        # self.texture_mapping_off(gl)
+        # gl.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        #
+        # # want vtc: texture-coordinates per vertex (not per element in vc)
+        # colors = self.vt[self.ft.ravel()]
+        # #vtc = np.zeros((len(self.camera.r), 2))
+        # #for idx, vidx in enumerate(self.f.ravel()):
+        # #    tidx = self.ft.ravel()[idx]
+        # #    vtc[vidx] = self.vt[tidx]
+        #
+        # colors = np.asarray(np.hstack((colors, col(colors[:,0]*0))), np.float64, order='C')
+        # draw_colored_primitives(gl, self.camera.r.reshape((-1,3)), self.f, colors)
+        # result = np.asarray(deepcopy(gl.getImage()), np.float64, order='C')[:,:,:2].copy()
+        # result[:,:,1] = 1. - result[:,:,1]
+        # return result
 
 
 
