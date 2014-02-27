@@ -188,7 +188,7 @@ class DepthRenderer(BaseRenderer):
             result = overdraw*boundarybool_image + result*(1-boundarybool_image)
 
         if hasattr(self, 'background_image'):
-            if True: # has problems at boundaries, not sure why yet
+            if False: # has problems at boundaries, not sure why yet
                 bg_px = self.visibility_image == 4294967295
                 fg_px = 1 - bg_px
                 result = bg_px * self.background_image + fg_px * result
