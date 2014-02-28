@@ -16,14 +16,18 @@ import scipy.stats
 from chumpy.utils import row, col
 from .contexts._constants import *
 
+def nanmean(a, axis):
+    result = np.nan_to_num(scipy.stats.nanmean(a, axis=axis))
+    return result
+
 def nangradients(arr):
     dy = np.expand_dims(arr[:-1,:,:] - arr[1:,:,:], axis=3)
     dx = np.expand_dims(arr[:,:-1,:] - arr[:, 1:, :], axis=3)
 
     dy = np.concatenate((dy[1:,:,:], dy[:-1,:,:]), axis=3)
-    dy = scipy.stats.nanmean(dy, axis=3)
+    dy = nanmean(dy, axis=3)
     dx = np.concatenate((dx[:,1:,:], dx[:,:-1,:]), axis=3)
-    dx = scipy.stats.nanmean(dx, axis=3)
+    dx = nanmean(dx, axis=3)
 
     if arr.shape[2] > 1:
         gy, gx, _ = np.gradient(arr)
@@ -311,6 +315,9 @@ def draw_visibility_image(gl, v, f, boundarybool_image=None):
 
     rr = result.ravel()
     faces_to_draw = np.unique(rr[rr != 4294967295])
+    if len(faces_to_draw)==0:
+        result = np.ones((gl.height, gl.width)).astype(np.uint32)*4294967295
+        return result
     gl.PolygonMode(GL_FRONT_AND_BACK, GL_LINE)
     result2 = draw_visibility_image_internal(gl, v, f[faces_to_draw])
     gl.PolygonMode(GL_FRONT_AND_BACK, GL_FILL)
