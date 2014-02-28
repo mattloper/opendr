@@ -104,8 +104,7 @@ class DepthRenderer(BaseRenderer):
         visible = np.nonzero(visibility.ravel() != 4294967295)[0]
         barycentric = self.barycentric_image
         if wrt is self.camera:
-            
-            shape = visibility.shape        
+            shape = visibility.shape
             depth = self.depth_image
 
             if self.overdraw:
@@ -118,6 +117,7 @@ class DepthRenderer(BaseRenderer):
             return result1
 
         elif wrt is self.v:
+
             IS = np.tile(col(visible), (1, 9)).ravel()
             JS = col(self.f[visibility.ravel()[visible]].ravel())
             JS = np.hstack((JS*3, JS*3+1, JS*3+2)).ravel()
@@ -667,6 +667,8 @@ def draw_boundaryid_image(gl, v, f, vpe, fpe, camera):
         lines_e = vpe[silhouette_edges]
         lines_v = v
 
+        if len(lines_e)==0:
+            return np.ones((gl.height, gl.width)).astype(np.int32) * 4294967295
         visibility = draw_edge_visibility(gl, lines_v, lines_e, f, hidden_wireframe=True)
         shape = visibility.shape
         visibility = visibility.ravel()
