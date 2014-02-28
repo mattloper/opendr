@@ -17,7 +17,9 @@ from chumpy.utils import row, col
 from .contexts._constants import *
 
 def nanmean(a, axis):
-    result = np.nan_to_num(scipy.stats.nanmean(a, axis=axis))
+    # don't call nan_to_num in here, unless you check that
+    # occlusion_test.py still works after you do it!
+    result = scipy.stats.nanmean(a, axis=axis)
     return result
 
 def nangradients(arr):
