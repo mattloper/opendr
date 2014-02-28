@@ -62,7 +62,6 @@ class RigidTransform(Ch):
             return result
 
 
-        
 
 class ProjectPoints(Ch):
     dterms = 'v', 'rt', 't', 'f', 'c', 'k'
@@ -106,7 +105,7 @@ class ProjectPoints(Ch):
             result = sp.csc_matrix((data, (IS, JS)))
             return result
 
-    def unproject_points(self, uvd):
+    def unproject_points(self, uvd, camera_space=False):
         cam = ProjectPoints3D(**{k: getattr(self, k)  for k in self.dterms if hasattr(self, k)})
 
         if False: # slow way, probably not so good
@@ -117,16 +116,18 @@ class ProjectPoints(Ch):
             xy_undistorted_camspace = cv2.undistortPoints(np.asarray(uvd[:,:2].reshape((1,-1,2)).copy()), np.asarray(cam.camera_mtx), cam.k.r)
             xyz_camera_space = np.hstack((xy_undistorted_camspace.squeeze(), col(uvd[:,2])))
             xyz_camera_space[:,:2] *= col(xyz_camera_space[:,2]) # scale x,y by z
+            if camera_space:
+                return xyz_camera_space
             other_answer = xyz_camera_space - row(cam.view_mtx[:,3]) # translate
             result = other_answer.dot(cam.view_mtx[:,:3]) # rotate
         return result
 
-    def unproject_depth_image(self, depth_image):
+    def unproject_depth_image(self, depth_image, camera_space=False):
         us = np.arange(depth_image.size) % depth_image.shape[1]
         vs = np.arange(depth_image.size) // depth_image.shape[1]
         ds = depth_image.ravel()
         uvd = ch.array(np.vstack((us.ravel(), vs.ravel(), ds.ravel())).T)
-        xyz = self.unproject_points(uvd)
+        xyz = self.unproject_points(uvd, camera_space=camera_space)
         return xyz.reshape((depth_image.shape[0], depth_image.shape[1], -1))
 
     
