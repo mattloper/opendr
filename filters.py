@@ -39,7 +39,7 @@ def laplacian_pyramid(input_objective, imshape, normalization, n_levels, as_list
 
 
         halfsampler_mtx, imshape = halfsampler_for(imshape)
-        input_objective = MatVecMult(halfsampler_mtx, blurred).reshape(imshape)
+        input_objective = MatVecMult(halfsampler_mtx, blurred.ravel()).reshape(imshape)
         
     output_objs.append(norm2(input_objective).reshape(imshape)) 
         
