@@ -17,12 +17,16 @@ class TestOcclusion(unittest.TestCase):
         # Create renderer
         import chumpy as ch
         import numpy as np
-        from opendr.renderer import ColoredRenderer
+        from opendr.renderer import TexturedRenderer, ColoredRenderer
+        #rn = TexturedRenderer()
         rn = ColoredRenderer()
 
         # Assign attributes to renderer
         from opendr.test_dr.common import get_earthmesh
         m = get_earthmesh(trans=ch.array([0,0,4]), rotation=ch.zeros(3))
+        rn.texture_image = m.texture_image
+        rn.ft = m.ft
+        rn.vt = m.vt
         m.v[:,2] = np.mean(m.v[:,2])
 
         # red is front and zero
