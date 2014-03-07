@@ -47,8 +47,11 @@ def laplacian_pyramid(input_objective, imshape, normalization, n_levels, as_list
 
 
 
-def gaussian_pyramid(input_objective, imshape, normalization, n_levels, as_list=True, label=None):
+def gaussian_pyramid(input_objective, imshape=None, normalization='SSE', n_levels=3, as_list=False, label=None):
     
+    if imshape is None:
+        imshape = input_objective.shape
+
     if normalization is None:
         norm2 = lambda x : x
     elif normalization is 'SSE':
