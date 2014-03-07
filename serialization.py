@@ -99,7 +99,7 @@ def read_obj(filename):
                     im = cv2.imread(dst_fname)
                     sz = np.sqrt(np.prod(im.shape[:2]))
                     sz = int(np.round(2 ** np.ceil(np.log(sz) / np.log(2))))
-                    d['texture_image'] = cv2.resize(im, (sz, sz))
+                    d['texture_image'] = cv2.resize(im, (sz, sz)).astype(np.float64)/255.
 
     for k, v in d.items():
         if k in ['v','vn','f','vt','ft']:
