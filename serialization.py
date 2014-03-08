@@ -7,12 +7,16 @@ See LICENCE.txt for licensing and contact information.
 
 __author__ = 'matt'
 
-__all__ = ['load_mesh']
+__all__ = ['load_mesh', 'load_image']
 
 from os.path import split, splitext, join, exists, normpath
 import cv2
 import numpy as np
 from opendr.dummy import Minimal
+
+
+def load_image(filename):
+    return (cv2.imread(filename)[:,:,::-1]/255.).copy()
 
 def load_mesh(filename):
 
