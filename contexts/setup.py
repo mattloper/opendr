@@ -42,7 +42,9 @@ def build_contexts():
                         library_dirs=[lf('OSMesa/lib')],
                         depends=[lf('_functions.pyx'), lf('_constants.py'), lf('ctx_base.pyx')],
                         define_macros = [('__OSMESA__', 1)],
-                        libraries=ctx_mesa_libraries())
+                        libraries=ctx_mesa_libraries(),
+                        extra_compile_args=['-Wno-error=unused-command-line-argument-hard-error-in-future'],
+                        extra_link_args=['-Wno-error=unused-command-line-argument-hard-error-in-future'])
 
     setup(
         cmdclass = {'build_ext': build_ext},
@@ -54,8 +56,8 @@ def build_contexts():
         ctx_mac_extension = Extension("ctx_mac", [lf('ctx_mac.pyx'), lf('ctx_mac_internal.c')],
                         language="c",
                         depends=[lf('_functions.pyx'), lf('_constants.py'), lf('ctx_base.pyx'), lf('ctx_mac_internal.h')],
-                        extra_compile_args=['-framework', 'OpenGL'],
-                        extra_link_args=['-framework', 'OpenGL'])
+                        extra_compile_args=['-framework', 'OpenGL', '-Wno-error=unused-command-line-argument-hard-error-in-future'],
+                        extra_link_args=['-framework', 'OpenGL', '-Wno-error=unused-command-line-argument-hard-error-in-future'])
 
 
         setup(

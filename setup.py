@@ -41,7 +41,9 @@ def add_mesa_args(args):
                         library_dirs=['contexts/OSMesa/lib'],
                         depends=['contexts/_constants.py'],
                         define_macros = [('__OSMESA__', 1)],
-                        libraries=libraries)
+                        libraries=libraries,
+                        extra_compile_args=['-Wno-error=unused-command-line-argument-hard-error-in-future'],
+                        extra_link_args=['-Wno-error=unused-command-line-argument-hard-error-in-future'])
 
     args['ext_modules'].append(ctx_mesa_extension)
     args['include_dirs'] += ['.', numpy.get_include(), 'contexts/OSMesa/include']
@@ -50,8 +52,8 @@ def add_mac_args(args):
     ctx_mac_extension = Extension("contexts.ctx_mac", ['contexts/ctx_mac.c', 'contexts/ctx_mac_internal.c'],
         language="c",
         depends=['contexts/_constants.py', 'contexts/ctx_mac_internal.h'],
-        extra_compile_args=['-framework', 'OpenGL'],
-        extra_link_args=['-framework', 'OpenGL'])
+        extra_compile_args=['-framework', 'OpenGL', '-Wno-error=unused-command-line-argument-hard-error-in-future'],
+        extra_link_args=['-framework', 'OpenGL', '-Wno-error=unused-command-line-argument-hard-error-in-future'])
 
 
     args['ext_modules'].append(ctx_mac_extension)
