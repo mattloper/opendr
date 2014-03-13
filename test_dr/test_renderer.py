@@ -69,7 +69,7 @@ class TestRenderer(unittest.TestCase):
         bgcolor = np.array([0.,0.,0.])
         renderers = [
             ColoredRenderer(f=mesh.f, camera=camera, frustum=frustum, bgcolor=bgcolor),
-            TexturedRenderer(f=mesh.f, camera=camera, frustum=frustum, texture_image=mesh.texture_image.astype(np.float64)/255., vt=mesh.vt, ft=mesh.ft, bgcolor=bgcolor)]
+            TexturedRenderer(f=mesh.f, camera=camera, frustum=frustum, texture_image=mesh.texture_image, vt=mesh.vt, ft=mesh.ft, bgcolor=bgcolor)]
         
         return mesh, lighting, camera, frustum, renderers
         
