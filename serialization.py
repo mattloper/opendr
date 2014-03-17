@@ -69,7 +69,7 @@ def read_obj(filename):
         elif key == 'f':
             spl = [l.split('/') for l in values]
             d['f'].append([np.array([int(l[0])-1 for l in spl[:3]], dtype=np.uint32)])
-            if len(spl) > 1 and spl[1] and hasattr(d, 'ft'):
+            if len(spl) > 1 and spl[1] and 'ft' in d:
                 d['ft'].append([np.array([int(l[1])-1 for l in spl[:3]])])
 
             # TOO: redirect to actual vert normals?
