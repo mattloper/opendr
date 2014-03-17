@@ -18,22 +18,6 @@ from opendr.utils import wget
 import zipfile
 
 
-if platform.system() == 'Darwin':
-    # Get rid of stupid warnings about strict prototypes
-    import distutils.sysconfig as ds
-    import string
-    a = ds.get_config_vars()
-    for k, v in a.items():
-        try:
-            if string.find(v, '-Wstrict-prototypes') != -1:
-                a[k] = string.replace(v, '-Wstrict-prototypes', '')
-            if string.find(v, '-arch i386') != -1:
-                a[k] = string.replace(v, '-arch i386', '')
-            if string.find(v, '-mno-fused-madd ') != -1:
-                a[k] = string.replace(v, '-mno-fused-madd', '')
-        except:
-            pass
-
 def lf(fname):
     return join(split(__file__)[0], fname)
 
@@ -103,5 +87,7 @@ def download_osmesa():
 
 
 if __name__ == '__main__':
+    from fix_warnings import fix_warnings
+    fix_warnings()
     download_osmesa()
     build_contexts()

@@ -16,21 +16,6 @@ import re
 
 import contexts.autogen
 
-if platform.system() == 'Darwin':
-    # Get rid of stupid warnings about strict prototypes
-    import distutils.sysconfig as ds
-    import string
-    a = ds.get_config_vars()
-    for k, v in a.items():
-        try:
-            if string.find(v, '-Wstrict-prototypes') != -1:
-                a[k] = string.replace(v, '-Wstrict-prototypes', '')
-            if string.find(v, '-arch i386') != -1:
-                a[k] = string.replace(v, '-arch i386', '')
-            if string.find(v, '-mno-fused-madd ') != -1:
-                a[k] = string.replace(v, '-mno-fused-madd', '')
-        except:
-            pass
 
 def setup_opendr(args):
     setup(name='opendr',
@@ -75,6 +60,9 @@ def add_mac_args(args):
 
 
 def main():
+    from contexts.fix_warnings import fix_warnings
+    fix_warnings()
+
     # Get osmesa and some processed files ready
     contexts.autogen.main()
 
