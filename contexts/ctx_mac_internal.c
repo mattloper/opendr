@@ -62,7 +62,6 @@ void *create_context (unsigned int imageWidth, unsigned int imageHeight, GLenum 
     
     CGLPixelFormatObj pixelFormatObj;
     GLint numPixelFormats;
-    long value;
     
     CGLChoosePixelFormat (attribs, &pixelFormatObj, &numPixelFormats);
     
