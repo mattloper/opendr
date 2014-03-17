@@ -136,7 +136,7 @@ def edge_defs(v,f):
     
 
 def FirstEdgesMtx(v, f, want_big=True):
-    cnct = get_vert_connectivity(v=(v.r if hasattr(v, 'r') else v), f=f)
+    cnct = get_vert_connectivity((v.r if hasattr(v, 'r') else v), f)
     nbrs = [np.nonzero(np.array(cnct[:,i].todense()))[0][0] for i in range(cnct.shape[1])]
     JS = np.array(nbrs)
     IS = np.arange(len(JS))
@@ -160,7 +160,7 @@ def SecondFundamentalForm(v, f):
     b1 = NormalizedNx3(CrossProduct(b0, nbrs-v)).reshape((-1,3))
     b2 = NormalizedNx3(CrossProduct(b0, b1)).reshape((-1,3))
     
-    cnct = get_vert_connectivity(v=v.r, f=f)
+    cnct = get_vert_connectivity(v.r, f)
     ffs = []
     for i in range(v.size/3):
         nbrs = v[np.nonzero(np.asarray(cnct[i].todense()).ravel())[0]] - row(v[i])
