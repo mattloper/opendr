@@ -18,6 +18,22 @@ from opendr.utils import wget
 import zipfile
 
 
+if platform.system() == 'Darwin':
+    # Get rid of stupid warnings about strict prototypes
+    import distutils.sysconfig as ds
+    import string
+    a = ds.get_config_vars()
+    for k, v in a.items():
+        try:
+            if string.find(v, '-Wstrict-prototypes') != -1:
+                a[k] = string.replace(v, '-Wstrict-prototypes', '')
+            if string.find(v, '-arch i386') != -1:
+                a[k] = string.replace(v, '-arch i386', '')
+            if string.find(v, '-mno-fused-madd ') != -1:
+                a[k] = string.replace(v, '-mno-fused-madd', '')
+        except:
+            pass
+
 def lf(fname):
     return join(split(__file__)[0], fname)
 
@@ -43,8 +59,9 @@ def build_contexts():
                         depends=[lf('_functions.pyx'), lf('_constants.py'), lf('ctx_base.pyx')],
                         define_macros = [('__OSMESA__', 1)],
                         libraries=ctx_mesa_libraries(),
-                        extra_compile_args=['-Wno-error=unused-command-line-argument-hard-error-in-future'],
-                        extra_link_args=['-Wno-error=unused-command-line-argument-hard-error-in-future'])
+                        extra_compile_args=['-Wno-unused-function', '-Wno-implicit-function-declaration'],
+                        extra_link_args=['-Wno-unused-function', '-Wno-implicit-function-declaration'])
+
 
     setup(
         cmdclass = {'build_ext': build_ext},
@@ -56,8 +73,9 @@ def build_contexts():
         ctx_mac_extension = Extension("ctx_mac", [lf('ctx_mac.pyx'), lf('ctx_mac_internal.c')],
                         language="c",
                         depends=[lf('_functions.pyx'), lf('_constants.py'), lf('ctx_base.pyx'), lf('ctx_mac_internal.h')],
-                        extra_compile_args=['-framework', 'OpenGL', '-Wno-error=unused-command-line-argument-hard-error-in-future'],
-                        extra_link_args=['-framework', 'OpenGL', '-Wno-error=unused-command-line-argument-hard-error-in-future'])
+                        extra_compile_args=['-Wno-unused-function', '-Wno-implicit-function-declaration'],
+                        extra_link_args=['-Wno-unused-function', '-Wno-implicit-function-declaration'])
+
 
 
         setup(

@@ -16,7 +16,21 @@ import re
 
 import contexts.autogen
 
-
+if platform.system() == 'Darwin':
+    # Get rid of stupid warnings about strict prototypes
+    import distutils.sysconfig as ds
+    import string
+    a = ds.get_config_vars()
+    for k, v in a.items():
+        try:
+            if string.find(v, '-Wstrict-prototypes') != -1:
+                a[k] = string.replace(v, '-Wstrict-prototypes', '')
+            if string.find(v, '-arch i386') != -1:
+                a[k] = string.replace(v, '-arch i386', '')
+            if string.find(v, '-mno-fused-madd ') != -1:
+                a[k] = string.replace(v, '-mno-fused-madd', '')
+        except:
+            pass
 
 def setup_opendr(args):
     setup(name='opendr',
@@ -42,8 +56,8 @@ def add_mesa_args(args):
                         depends=['contexts/_constants.py'],
                         define_macros = [('__OSMESA__', 1)],
                         libraries=libraries,
-                        extra_compile_args=['-Wno-error=unused-command-line-argument-hard-error-in-future'],
-                        extra_link_args=['-Wno-error=unused-command-line-argument-hard-error-in-future'])
+                        extra_compile_args=['-Qunused-arguments'],
+                        extra_link_args=['-Qunused-arguments'])
 
     args['ext_modules'].append(ctx_mesa_extension)
     args['include_dirs'] += ['.', numpy.get_include(), 'contexts/OSMesa/include']
@@ -52,8 +66,8 @@ def add_mac_args(args):
     ctx_mac_extension = Extension("contexts.ctx_mac", ['contexts/ctx_mac.c', 'contexts/ctx_mac_internal.c'],
         language="c",
         depends=['contexts/_constants.py', 'contexts/ctx_mac_internal.h'],
-        extra_compile_args=['-framework', 'OpenGL', '-Wno-error=unused-command-line-argument-hard-error-in-future'],
-        extra_link_args=['-framework', 'OpenGL', '-Wno-error=unused-command-line-argument-hard-error-in-future'])
+        extra_compile_args=['-Qunused-arguments'],
+        extra_link_args=['-Qunused-arguments'])
 
 
     args['ext_modules'].append(ctx_mac_extension)
@@ -78,3 +92,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
