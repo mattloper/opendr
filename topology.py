@@ -79,6 +79,7 @@ def get_faces_per_edge(mesh_v, mesh_f, verts_per_edge=None):
         fpe = -np.ones_like(verts_per_edge)
         for idx, edge in enumerate(verts_per_edge):
             faces = v2f[edge[0]].intersection(v2f[edge[1]])
+            faces = list(faces)[:2]
             for i, f in enumerate(faces):
                 fpe[idx,i] = f
 
