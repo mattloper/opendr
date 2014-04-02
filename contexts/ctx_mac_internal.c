@@ -98,7 +98,9 @@ void *create_context (unsigned int imageWidth, unsigned int imageHeight, GLenum 
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, imageWidth, imageHeight);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer);
     
-    
+	// "The system retains the pixel format object when you call the function CGLCreateContext, 
+	// so you can release a pixel format object immediately after passing it to the context creation function."
+    CGLReleasePixelFormat(pixelFormatObj); 
     if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
     {
         printf("uh oh, bad status from glCheckFramebufferStatusEXT!\n");
