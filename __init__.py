@@ -34,6 +34,47 @@ plt.show()
 dr = rn.dr_wrt(rn.v) # or rn.vc, or rn.camera.rt, rn.camera.t, rn.camera.f, rn.camera.c, etc
 """
 
+demos['per_face_normals'] = """
+# Create renderer
+import chumpy as ch
+import numpy as np
+from opendr.renderer import ColoredRenderer
+from opendr.lighting import LambertianPointLight
+rn = ColoredRenderer()
+
+# Assign attributes to renderer
+from opendr.test_dr.common import get_earthmesh
+m = get_earthmesh(trans=ch.array([0,0,4]), rotation=ch.zeros(3))
+w, h = (320, 240)
+
+# THESE ARE THE 3 CRITICAL LINES 
+m.v = m.v[m.f.ravel()]
+m.vc = m.vc[m.f.ravel()]
+m.f = np.arange(m.f.size).reshape((-1,3))
+
+from opendr.camera import ProjectPoints
+rn.camera = ProjectPoints(v=m.v, rt=ch.zeros(3), t=ch.zeros(3), f=ch.array([w,w])/2., c=ch.array([w,h])/2., k=ch.zeros(5))
+rn.frustum = {'near': 1., 'far': 10., 'width': w, 'height': h}
+rn.set(v=m.v, f=m.f, bgcolor=ch.zeros(3))
+
+# Construct point light source
+rn.vc = LambertianPointLight(
+    f=m.f,
+    v=rn.v,
+    num_verts=len(m.v),
+    light_pos=ch.array([-1000,-1000,-1000]),
+    vc=m.vc,
+    light_color=ch.array([1., 1., 1.]))
+
+# Show it
+import matplotlib.pyplot as plt
+plt.ion()
+plt.imshow(rn.r)
+plt.show()
+
+dr = rn.dr_wrt(rn.v) # or rn.vc, or rn.camera.rt, rn.camera.t, rn.camera.f, rn.camera.c, etc
+"""
+
 demos['silhouette'] = """
 # Create renderer
 import chumpy as ch
