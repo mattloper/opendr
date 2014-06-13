@@ -8,7 +8,7 @@ Author(s): Matthew Loper
 See LICENCE.txt for licensing and contact information.
 """
 
-__all__ = ['Rodrigues', 'VertNormals', 'VertNormalsScaled', 'TriNormals', 'TriNormalsScaled', 'CrossProduct', 'TriArea', 'AcosTriAngles']
+__all__ = ['Rodrigues', 'VertNormals', 'VertNormalsScaled', 'TriNormals', 'TriNormalsScaled', 'CrossProduct', 'TriArea', 'AcosTriAngles', 'volume']
 
 import cv2
 import numpy as np
@@ -18,6 +18,28 @@ from chumpy import *
 import chumpy as ch
 from chumpy.ch import MatVecMult
 from opendr.topology import get_faces_per_edge, get_vert_connectivity
+
+
+def volume(v, f):
+
+    # Construct a 3D matrix which is of size (nfaces x 3 x 3)
+    # Each row corresponds to a face; the third dimension indicates
+    # which triangle in that face is being referred to
+    vs = ch.dstack((
+        v[f[:,0],:],
+        v[f[:,1],:],
+        v[f[:,2],:]))
+
+    v321 = vs[:,0,2]*vs[:,1,1]*vs[:,2,0];
+    v231 = vs[:,0,1]*vs[:,1,2]*vs[:,2,0];
+    v312 = vs[:,0,2]*vs[:,1,0]*vs[:,2,1];
+    v132 = vs[:,0,0]*vs[:,1,2]*vs[:,2,1];
+    v213 = vs[:,0,1]*vs[:,1,0]*vs[:,2,2];
+    v123 = vs[:,0,0]*vs[:,1,1]*vs[:,2,2];
+
+    volumes =  (-v321 + v231 + v312 - v132 - v213 + v123) * (1./6.)
+    return ch.abs(ch.sum(volumes))
+    
 
 class NormalizedNx3(Ch):
     dterms = 'v'
