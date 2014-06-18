@@ -33,8 +33,8 @@ def getcam():
     t = np.zeros(3)
     k = np.zeros(5)
     c = np.array([w/2., h/2.])
-    near = 10.
-    far = -10.
+    near = .1
+    far = 20.
 
     frustum = {'near': near, 'far': far, 'width': w, 'height': h}
     pp = ProjectPoints3D(f=f, rt=rt, t=t, k=k, c=c)
@@ -61,7 +61,7 @@ class TestSphericalHarmonics(unittest.TestCase):
         cam, frustum = getcam()
     
         # Get renderer
-        from opendr.renderer2 import ColoredRenderer
+        from opendr.renderer import ColoredRenderer
         cam.v = v
         cr = ColoredRenderer(f=f, camera=cam, frustum=frustum, v=v)
     
@@ -86,7 +86,7 @@ class TestSphericalHarmonics(unittest.TestCase):
                 plt.imshow(newim)
                 plt.axis('off')
             
-        offset = row(.2 * (np.random.rand(3)-.5))
+        offset = row(.4 * (np.random.rand(3)-.5))
         #offset = row(np.array([1.,1.,1.]))*.05
         vn_shifted = (vn.r + offset)
         vn_shifted = vn_shifted / col(np.sqrt(np.sum(vn_shifted**2, axis=1)))
