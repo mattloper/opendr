@@ -368,7 +368,7 @@ def draw_colored_primitives(gl, v, f, fc=None):
     verts_by_face = np.asarray(v.reshape((-1,3))[f.ravel()], dtype=np.float64, order='C')
     gl.VertexPointer(verts_by_face)
     
-    if fc != None:
+    if fc is not None:
         gl.EnableClientState(GL_COLOR_ARRAY);
         if fc.size == verts_by_face.size:
             vc_by_face = fc

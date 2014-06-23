@@ -59,7 +59,7 @@ def get_vertices_per_edge(mesh_v, mesh_f):
 
 def get_faces_per_edge(mesh_v, mesh_f, verts_per_edge=None):
     faces = mesh_f
-    suffix = str(zlib.crc32(verts_per_edge.flatten())) if verts_per_edge != None else ''
+    suffix = str(zlib.crc32(verts_per_edge.flatten())) if verts_per_edge is not None else ''
     cache_fname = '/tmp/edgecache_new_' + str(zlib.crc32(faces.flatten())) + '_' + suffix + '.pkl'
 
     try:
