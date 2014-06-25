@@ -34,6 +34,46 @@ plt.show()
 dr = rn.dr_wrt(rn.v) # or rn.vc, or rn.camera.rt, rn.camera.t, rn.camera.f, rn.camera.c, etc
 """
 
+demos['moments'] = """
+from opendr.test_dr.common import get_earthmesh
+from opendr.simple import * 
+import numpy as np
+
+w, h = 320, 240
+
+m = get_earthmesh(trans=ch.array([0,0,4]), rotation=ch.zeros(3))
+
+# Create V, A, U, f: geometry, brightness, camera, renderer
+V = ch.array(m.v)
+A = SphericalHarmonics(vn=VertNormals(v=V, f=m.f), 
+                       components=[3.,1.,0.,0.,0.,0.,0.,0.,0.], 
+                       light_color=ch.ones(3))
+U = ProjectPoints(v=V, f=[300,300.], c=[w/2.,h/2.], k=ch.zeros(5),
+                  t=ch.zeros(3), rt=ch.zeros(3))
+rn = TexturedRenderer(vc=A, camera=U, f=m.f, bgcolor=[0.,0.,0.],
+                     texture_image=m.texture_image, vt=m.vt, ft=m.ft,
+                     frustum={'width':w, 'height':h, 'near':1,'far':20})
+
+i, j = ch.array([2.]), ch.array([1.])
+xs, ys = ch.meshgrid(range(rn.shape[1]), range(rn.shape[0]))
+ysp = ys ** j
+xsp = xs ** i
+rn_bw = ch.sum(rn, axis=2)
+moment = ch.sum((rn_bw * ysp * xsp).ravel())
+
+# Print our numerical result
+print moment 
+
+# Note that opencv produces the same result for 'm21',
+# and that other moments can be created by changing "i" and "j" above
+import cv2
+print cv2.moments(rn_bw.r)['m21']
+
+# Derivatives wrt vertices and lighting
+print moment.dr_wrt(V)
+print moment.dr_wrt(A.components)
+"""
+
 demos['per_face_normals'] = """
 # Create renderer
 import chumpy as ch
