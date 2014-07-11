@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-test_sh.py
+Author(s): Matthew Loper
 
-Created by Matthew Loper on 2013-05-01.
-Copyright (c) 2013 MPI. All rights reserved.
-
+See LICENCE.txt for licensing and contact information.
 """
-
 
 from chumpy import Ch
 import numpy as np

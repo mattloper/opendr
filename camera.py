@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-Copyright (C) 2013
 Author(s): Matthew Loper
 
 See LICENCE.txt for licensing and contact information.
