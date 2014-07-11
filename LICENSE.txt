@@ -1,0 +1,11 @@
+The Differentiable Renderer
+Copyright (c) Matthew Loper <matt.loper@gmail.com>
+
+Permission is hereby granted to Max-Planck employees and researchers
+for the use and modification (but not redistribution) of this software
+for research purposes.
+
+This software is also licensed separately and non-exclusively to Body 
+Labs, Inc, according to a 2013 licensing agreement with the Max Planck Institute.
+Terms of that agreement are available on request.
+
