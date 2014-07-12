@@ -1,12 +1,6 @@
 
-all: contexts/ctx_mac.c contexts/ctx_mesa.c
+all: 
 	python2.7 setup.py build_ext --inplace
-
-contexts/ctx_mac.c:
-	make -C contexts
-
-contexts/ctx_mesa.c:
-	make -C contexts
 
 sdist: all
 	python setup.py sdist && rsync -avz dist/opendr-0.5.tar.gz files:~/opendr/latest.tgz
