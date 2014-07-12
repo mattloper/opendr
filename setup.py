@@ -30,8 +30,9 @@ def download_osmesa():
         zip_fname = os.path.join(context_dir, osmesa_fname)
         if not os.path.exists(zip_fname):
             print "Downloading %s" % osmesa_fname
-            # MPI url was: http://files.is.tue.mpg.de/mloper/opendr/osmesa/%s
-            wget('https://s3.amazonaws.com/bodylabs-assets/public/osmesa/%s' % (osmesa_fname,), dest_fname=zip_fname)
+            # MPI url: http://files.is.tue.mpg.de/mloper/opendr/osmesa/%s
+            # BL url: https://s3.amazonaws.com/bodylabs-assets/public/osmesa/%s
+            wget('http://files.is.tue.mpg.de/mloper/opendr/osmesa/%s' % (osmesa_fname,), dest_fname=zip_fname)
         assert(os.path.exists(zip_fname))
         with zipfile.ZipFile(zip_fname, 'r') as z:
             for f in filter(lambda x: re.search('[ah]$', x), z.namelist()):
