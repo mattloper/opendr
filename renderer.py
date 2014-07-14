@@ -66,6 +66,10 @@ class BaseRenderer(Ch):
         return np.asarray(boundaryid_image != 4294967295, np.uint32).reshape(boundaryid_image.shape)
 
     @property
+    def shape(self):
+        raise NotImplementedError('Should be implemented in inherited class.')
+
+    @property
     def v(self):
         return self.camera.v
 
@@ -89,6 +93,10 @@ class DepthRenderer(BaseRenderer):
     terms = 'f', 'frustum', 'background_image','overdraw'
     dterms = 'camera', 'v'        
     
+
+    @property
+    def shape(self):
+        return (self.frustum['height'], self.frustum['width'])
 
     def compute_r(self):
         tmp = self.camera.r
@@ -219,6 +227,10 @@ class BoundaryRenderer(BaseRenderer):
     terms = 'f', 'frustum', 'num_channels'
     dterms = 'camera',
 
+    @property
+    def shape(self):
+        return (self.frustum['height'], self.frustum['width'], self.num_channels)
+
     def compute_r(self):
         tmp = self.camera.r
         return self.color_image
@@ -236,7 +248,6 @@ class BoundaryRenderer(BaseRenderer):
         barycentric = self.barycentric_image
     
         return common.dImage_wrt_2dVerts(self.color_image, visible, visibility, barycentric, self.frustum['width'], self.frustum['height'], self.v.r.size/3, self.vpe)
-        
 
     def on_changed(self, which):
         if 'frustum' in which:
@@ -263,14 +274,21 @@ class BoundaryRenderer(BaseRenderer):
 
 
 class ColoredRenderer(BaseRenderer):
-    terms = 'f', 'frustum', 'background_image', 'overdraw'
+    terms = 'f', 'frustum', 'background_image', 'overdraw', 'num_channels'
     dterms = 'vc', 'camera', 'bgcolor'        
-    
-    
+
+    @property
+    def shape(self):
+        if not hasattr(self, 'num_channels'):
+            self.num_channels = 3
+        if self.num_channels > 1:
+            return (self.frustum['height'], self.frustum['width'], self.num_channels)
+        else:
+            return (self.frustum['height'], self.frustum['width'])
 
     def compute_r(self):
         tmp = self.camera.r
-        return self.color_image.reshape((self.frustum['height'], self.frustum['width'], -1))
+        return self.color_image # .reshape((self.frustum['height'], self.frustum['width'], -1)).squeeze()
         
     def compute_dr_wrt(self, wrt):
         if wrt is not self.camera and wrt is not self.vc and wrt is not self.bgcolor:
@@ -293,10 +311,10 @@ class ColoredRenderer(BaseRenderer):
                 return common.dImage_wrt_2dVerts(color, visible, visibility, barycentric, self.frustum['width'], self.frustum['height'], self.v.r.size/3, self.f)
 
         elif wrt is self.vc:
-            return common.dr_wrt_vc(visible, visibility, self.f, barycentric, self.frustum, self.v.size)
+            return common.dr_wrt_vc(visible, visibility, self.f, barycentric, self.frustum, self.vc.size, num_channels=self.num_channels)
 
         elif wrt is self.bgcolor:
-            return common.dr_wrt_bgcolor(visibility, self.frustum)
+            return common.dr_wrt_bgcolor(visibility, self.frustum, num_channels=self.num_channels)
 
 
     def on_changed(self, which):
@@ -312,16 +330,19 @@ class ColoredRenderer(BaseRenderer):
             setup_camera(self.glb, self.camera, self.frustum)
             setup_camera(self.glf, self.camera, self.frustum)
             
+        if not hasattr(self, 'num_channels'):
+            self.num_channels = 3
+
         if not hasattr(self, 'bgcolor'):
-            self.bgcolor = Ch(np.array([.5,.5,.5]))
+            self.bgcolor = Ch(np.array([.5]*self.num_channels))
             which.add('bgcolor')
 
         if not hasattr(self, 'overdraw'):
             self.overdraw = True
             
         if 'bgcolor' in which or ('frustum' in which and hasattr(self, 'bgcolor')):
-            self.glf.ClearColor(self.bgcolor.r[0], self.bgcolor.r[1], self.bgcolor.r[2], 1.)
-            
+            self.glf.ClearColor(self.bgcolor.r[0], self.bgcolor.r[1%self.num_channels], self.bgcolor.r[2%self.num_channels], 1.)
+
 
     def flow_to(self, v_next, cam_next=None):
         return common.flow_to(self, v_next, cam_next)
@@ -353,19 +374,23 @@ class ColoredRenderer(BaseRenderer):
 
     def draw_color_image(self, gl):
         self._call_on_changed()
-        gl.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        try:
+            gl.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        # use face colors if given
-        draw_colored_verts(gl, self.v.r, self.f, self.vc.r)
+            # use face colors if given
+            # FIXME: this won't work for 2 channels
+            draw_colored_verts(gl, self.v.r, self.f, self.vc.r)
 
-        result = np.asarray(deepcopy(gl.getImage()), np.float64)
+            result = np.asarray(deepcopy(gl.getImage()[:,:,:self.num_channels].squeeze()), np.float64)
 
-        if hasattr(self, 'background_image'):
-            bg_px = np.tile(np.atleast_3d(self.visibility_image) == 4294967295, (1,1,3))
-            fg_px = 1 - bg_px
-            result = bg_px * self.background_image + fg_px * result
+            if hasattr(self, 'background_image'):
+                bg_px = np.tile(np.atleast_3d(self.visibility_image) == 4294967295, (1,1,self.num_channels)).squeeze()
+                fg_px = 1 - bg_px
+                result = bg_px * self.background_image + fg_px * result
 
-        return result
+            return result
+        except:
+            import pdb; pdb.set_trace()
 
 
     @depends_on(dterms+terms)
@@ -380,11 +405,11 @@ class ColoredRenderer(BaseRenderer):
         gl.PolygonMode(GL_FRONT_AND_BACK, GL_LINE)
         overdraw = self.draw_color_image(gl)
         gl.PolygonMode(GL_FRONT_AND_BACK, GL_FILL)
-        boundarybool_image = np.atleast_3d(self.boundarybool_image)
-        return overdraw*boundarybool_image + no_overdraw*(1-boundarybool_image)
 
-
-
+        boundarybool_image = self.boundarybool_image
+        if self.num_channels > 1:
+            boundarybool_image = np.atleast_3d(boundarybool_image)
+        return np.asarray((overdraw*boundarybool_image + no_overdraw*(1-boundarybool_image)), order='C')
 
 
     @depends_on('f', 'frustum', 'camera')
@@ -412,6 +437,14 @@ class TexturedRenderer(ColoredRenderer):
 
     def __del__(self):
         self.release_textures()
+
+    @property
+    def shape(self):
+        return (self.frustum['height'], self.frustum['width'], 3)
+
+    @property
+    def num_channels(self):
+        return 3
         
     def release_textures(self):
         if hasattr(self, 'textureID'):
@@ -829,12 +862,16 @@ def _setup_camera(gl, cx, cy, fx, fy, w, h, near, far, view_matrix, k):
 
 
 def draw_colored_verts(gl, v, f, vc):
+    # TODO: copying is inefficient here
+    if vc.shape[1] != 3:
+        vc = np.vstack((vc[:,0], vc[:,1%vc.shape[1]], vc[:,2%vc.shape[1]])).T.copy()
+    assert(vc.shape[1]==3)
     gl.EnableClientState(GL_VERTEX_ARRAY);
     gl.EnableClientState(GL_COLOR_ARRAY);
     gl.VertexPointer(np.ascontiguousarray(v).reshape((-1,3)));
     gl.ColorPointerd(np.ascontiguousarray(vc).reshape((-1,3)));
     gl.DrawElements(GL_TRIANGLES, np.asarray(f, np.uint32).ravel())
-    
+
 def draw_noncolored_verts(gl, v, f):
     gl.EnableClientState(GL_VERTEX_ARRAY);
     gl.DisableClientState(GL_COLOR_ARRAY);

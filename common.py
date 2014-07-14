@@ -271,23 +271,26 @@ def flow_to(self, v_next, cam_next):
     return flow_im
 
 
-def dr_wrt_bgcolor(visibility, frustum):
+def dr_wrt_bgcolor(visibility, frustum, num_channels):
     invisible = np.nonzero(visibility.ravel() == 4294967295)[0]
     IS = invisible
     JS = np.zeros(len(IS))
     data = np.ones(len(IS))
 
     # color image, so 3 channels
-    IS = np.concatenate((IS*3, IS*3+1, IS*3+2))
-    JS = np.concatenate((JS*3, JS*3+1, JS*3+2))
-    data = np.concatenate((data, data, data))
+    IS = np.concatenate([IS*num_channels+k for k in range(num_channels)])
+    JS = np.concatenate([JS*num_channels+k for k in range(num_channels)])
+    data = np.concatenate([data for i in range(num_channels)])
+    # IS = np.concatenate((IS*3, IS*3+1, IS*3+2))
+    # JS = np.concatenate((JS*3, JS*3+1, JS*3+2))
+    # data = np.concatenate((data, data, data))
 
     ij = np.vstack((IS.ravel(), JS.ravel()))
-    result = sp.csc_matrix((data, ij), shape=(frustum['width']*frustum['height']*3, 3))
+    result = sp.csc_matrix((data, ij), shape=(frustum['width']*frustum['height']*num_channels, num_channels))
     return result
 
 
-def dr_wrt_vc(visible, visibility, f, barycentric, frustum, v_size):
+def dr_wrt_vc(visible, visibility, f, barycentric, frustum, vc_size, num_channels):
     # Each pixel relies on three verts
     IS = np.tile(col(visible), (1, 3)).ravel()
     JS = col(f[visibility.ravel()[visible]].ravel())
@@ -295,13 +298,15 @@ def dr_wrt_vc(visible, visibility, f, barycentric, frustum, v_size):
     bc = barycentric.reshape((-1,3))
     data = np.asarray(bc[visible,:], order='C').ravel()
 
-    # color image, so 3 channels
-    IS = np.concatenate((IS*3, IS*3+1, IS*3+2))
-    JS = np.concatenate((JS*3, JS*3+1, JS*3+2))
-    data = np.concatenate((data, data, data))
+    IS = np.concatenate([IS*num_channels+k for k in range(num_channels)])
+    JS = np.concatenate([JS*num_channels+k for k in range(num_channels)])
+    data = np.concatenate([data for i in range(num_channels)])
+    # IS = np.concatenate((IS*3, IS*3+1, IS*3+2))
+    # JS = np.concatenate((JS*3, JS*3+1, JS*3+2))
+    # data = np.concatenate((data, data, data))
 
     ij = np.vstack((IS.ravel(), JS.ravel()))
-    result = sp.csc_matrix((data, ij), shape=(frustum['width']*frustum['height']*3, v_size))
+    result = sp.csc_matrix((data, ij), shape=(frustum['width']*frustum['height']*num_channels, vc_size))
     return result
 
 

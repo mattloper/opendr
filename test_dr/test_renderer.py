@@ -22,6 +22,7 @@ from chumpy import Ch
 from chumpy.utils import row, col
 from opendr.lighting import *
 from opendr.test_dr.common import get_earthmesh, process
+from collections import OrderedDict
 
 
     
@@ -58,26 +59,36 @@ class TestRenderer(unittest.TestCase):
         camera, frustum = getcam()
         mesh = get_earthmesh(trans=np.array([0,0,5]), rotation = np.array([0,0,0]))
         
-        lighting = LambertianPointLight(
-            f=mesh.f, 
-            num_verts=len(mesh.v), 
-            light_pos=np.array([-1000,-1000,-1000]), 
-            vc=mesh.vc, 
+        lighting_3channel = LambertianPointLight(
+            f=mesh.f,
+            num_verts=len(mesh.v),
+            light_pos=np.array([-1000,-1000,-1000]),
+            vc=mesh.vc,
             light_color=np.array([1., 1., 1.]))
-            
+        lighting_1channel = LambertianPointLight(
+            f=mesh.f,
+            num_verts=len(mesh.v),
+            light_pos=np.array([-1000,-1000,-1000]),
+            vc=mesh.vc.mean(axis=1).reshape((-1,1)),
+            light_color=np.array([1.]))
+
         bgcolor = np.array([0.,0.,0.])
         renderers = [
-            ColoredRenderer(f=mesh.f, camera=camera, frustum=frustum, bgcolor=bgcolor),
-            TexturedRenderer(f=mesh.f, camera=camera, frustum=frustum, texture_image=mesh.texture_image, vt=mesh.vt, ft=mesh.ft, bgcolor=bgcolor)]
-        
-        return mesh, lighting, camera, frustum, renderers
+            ColoredRenderer(f=mesh.f, camera=camera, frustum=frustum, bgcolor=bgcolor, num_channels=3),
+            TexturedRenderer(f=mesh.f, camera=camera, frustum=frustum, texture_image=mesh.texture_image, vt=mesh.vt, ft=mesh.ft, bgcolor=bgcolor),
+            ColoredRenderer(f=mesh.f, camera=camera, frustum=frustum, bgcolor=bgcolor[0], num_channels=1)]
+
+        lightings = {1: lighting_1channel, 3: lighting_3channel}
+        return mesh, lightings, camera, frustum, renderers
         
         
     def test_distortion(self):
-        mesh, lighting, camera, frustum, renderers = self.load_basics()
-        lighting.light_pos = -lighting.light_pos * 100.
+        mesh, lightings, camera, frustum, renderers = self.load_basics()
 
         renderer = renderers[1]
+        lighting = lightings[renderer.num_channels]
+        lighting.light_pos = -lighting.light_pos * 100.
+
         mesh = get_earthmesh(trans=np.array([0,0,-8]), rotation = np.array([math.pi/2.,0,0]))
         mesh_verts = Ch(mesh.v.flatten())
         renderer.camera = camera
@@ -123,20 +134,21 @@ class TestRenderer(unittest.TestCase):
             import matplotlib.pyplot as plt
             plt.ion()
 
-            plt.figure()
-            plt.subplot(2,2,1)
+            matplotlib.rcParams.update({'font.size': 18})
+            plt.figure(figsize=(6*3, 2*3))
+            plt.subplot(1,4,1)
             plt.imshow(im_original)
             plt.title('original')
 
-            plt.subplot(2,2,2)
+            plt.subplot(1,4,2)
             plt.imshow(im_distorted)
             plt.title('distorted')
 
-            plt.subplot(2,2,3)
+            plt.subplot(1,4,3)
             plt.imshow(im_undistorted)
             plt.title('undistorted by opencv')
 
-            plt.subplot(2,2,4)
+            plt.subplot(1,4,4)
             plt.imshow(im_undistorted - im_original + .5)
             plt.title('diff')
 
@@ -149,19 +161,20 @@ class TestRenderer(unittest.TestCase):
 
 
     def test_cam_derivatives(self):
-        mesh, lighting, camera, frustum, renderers = self.load_basics()
+        mesh, lightings, camera, frustum, renderers = self.load_basics()
 
         camparms = {
-            'c': {'mednz' : 1.5e-2, 'meannz': 2.5e-2, 'desc': 'center of proj diff', 'eps0': 2., 'eps1': .1},
-            'f': {'mednz' : 2.5e-2, 'meannz': 6e-2, 'desc': 'focal diff', 'eps0': 10., 'eps1': .1},
-            't': {'mednz' : 3e-2, 'meannz': 8e-2, 'desc': 'trans diff', 'eps0': .5, 'eps1': .1},
-            'rt': {'mednz' : 8e-2, 'meannz': 1.8e-1, 'desc': 'rot diff', 'eps0': 0.2, 'eps1': .5},
-            'k': {'mednz' : 5e-2, 'meannz': 1.5e-1, 'desc': 'distortion diff', 'eps0': .5, 'eps1': .05}
+            'c': {'mednz' : 1.9e-2, 'meannz': 4.0e-2, 'desc': 'center of proj diff', 'eps0': 4., 'eps1': .1},
+            #'f': {'mednz' : 2.5e-2, 'meannz': 6e-2, 'desc': 'focal diff', 'eps0': 100., 'eps1': .1},
+            't': {'mednz' : 1.1e-1, 'meannz': 2.7e-1, 'desc': 'trans diff', 'eps0': .25, 'eps1': .1},
+            'rt': {'mednz' : 8e-2, 'meannz': 1.8e-1, 'desc': 'rot diff', 'eps0': 0.02, 'eps1': .5},
+            'k': {'mednz' : 7e-2, 'meannz': 5.1e-1, 'desc': 'distortion diff', 'eps0': .5, 'eps1': .05}
         }
 
         for renderer in renderers:
 
-            im_shape = (renderer.frustum['height'], renderer.frustum['width'], 3)
+            im_shape = renderer.shape
+            lighting = lightings[renderer.num_channels]
 
             # Render a rotating mesh
             mesh = get_earthmesh(trans=np.array([0,0,5]), rotation = np.array([math.pi/2.,0,0]))        
@@ -184,13 +197,14 @@ class TestRenderer(unittest.TestCase):
                 dr = renderer.dr_wrt(atr())
 
                 # Establish a random direction
-                direction = (np.random.rand(atr_size)-.5)*info['eps0']
+                tmp = np.random.rand(atr().size) - .5
+                direction = (tmp / np.linalg.norm(tmp))*info['eps0']
                 #direction = np.sin(np.ones(atr_size))*info['eps0']
                 #direction = np.zeros(atr_size)
                 # try:
                 #     direction[4] = 1.
                 # except: pass
-                direction *= info['eps0']
+                #direction *= info['eps0']
                 eps = info['eps1']
 
                 # Render going forward in that direction
@@ -208,12 +222,11 @@ class TestRenderer(unittest.TestCase):
                 dr_empirical = (np.asarray(rfwd, np.float64) - np.asarray(rbwd, np.float64)).ravel() / eps
                 dr_predicted = dr.dot(col(direction.flatten())).reshape(dr_empirical.shape)
 
-                images = {
-                    'shifted %s' % (atrname,) : np.asarray(rfwd, np.float64)-.5,
-                    r'empirical %s' % (atrname,): dr_empirical,
-                    r'predicted %s' % (atrname,): dr_predicted,
-                    info['desc']: dr_predicted - dr_empirical
-                }
+                images = OrderedDict()
+                images['shifted %s' % (atrname,)] = np.asarray(rfwd, np.float64)-.5
+                images[r'empirical %s' % (atrname,)] = dr_empirical
+                images[r'predicted %s' % (atrname,)] = dr_predicted
+                images[info['desc']] = dr_predicted - dr_empirical
 
                 nonzero = images[info['desc']][np.nonzero(images[info['desc']]!=0)[0]]
 
@@ -222,8 +235,8 @@ class TestRenderer(unittest.TestCase):
                 if visualize:
                     matplotlib.rcParams.update({'font.size': 18})
                     plt.figure(figsize=(6*3, 2*3))
-                    for idx, title in enumerate(sorted(images.keys(), reverse=True)):
-                        plt.subplot(1,len(images.keys()), idx)
+                    for idx, title in enumerate(images.keys()):
+                        plt.subplot(1,len(images.keys()), idx+1)
                         im = process(images[title].reshape(im_shape), vmin=-.5, vmax=.5)
                         plt.title(title)
                         plt.imshow(im)
@@ -235,15 +248,16 @@ class TestRenderer(unittest.TestCase):
 
                 self.assertTrue(meanerror<info['meannz'])
                 self.assertTrue(mederror<info['mednz'])
-        
+
         
     def test_vert_derivatives(self):
 
-        mesh, lighting, camera, frustum, renderers = self.load_basics()
+        mesh, lightings, camera, frustum, renderers = self.load_basics()
 
         for renderer in renderers:
 
-            im_shape = (renderer.frustum['height'], renderer.frustum['width'], 3)
+            lighting = lightings[renderer.num_channels]
+            im_shape = renderer.shape
 
             # Render a rotating mesh
             mesh = get_earthmesh(trans=np.array([0,0,5]), rotation = np.array([math.pi/2.,0,0]))        
@@ -278,20 +292,19 @@ class TestRenderer(unittest.TestCase):
             dr_empirical = (np.asarray(rfwd, np.float64) - np.asarray(rbwd, np.float64)).ravel() / eps
             dr_predicted = dr.dot(col(direction.flatten())).reshape(dr_empirical.shape) 
 
-            images = {
-                'shifted verts' : np.asarray(rfwd, np.float64)-.5,
-                r'empirical verts $\left(\frac{dI}{dV}\right)$': dr_empirical,
-                r'predicted verts $\left(\frac{dI}{dV}\right)$': dr_predicted,
-                'difference verts': dr_predicted - dr_empirical
-            }
+            images = OrderedDict()
+            images['shifted verts'] = np.asarray(rfwd, np.float64)-.5
+            images[r'empirical verts $\left(\frac{dI}{dV}\right)$'] = dr_empirical
+            images[r'predicted verts $\left(\frac{dI}{dV}\right)$'] = dr_predicted
+            images['difference verts'] = dr_predicted - dr_empirical
 
             nonzero = images['difference verts'][np.nonzero(images['difference verts']!=0)[0]]
 
             if visualize:
                 matplotlib.rcParams.update({'font.size': 18})
                 plt.figure(figsize=(6*3, 2*3))
-                for idx, title in enumerate(sorted(images.keys(), reverse=True)):
-                    plt.subplot(1,len(images.keys()), idx)
+                for idx, title in enumerate(images.keys()):
+                    plt.subplot(1,len(images.keys()), idx+1)
                     im = process(images[title].reshape(im_shape), vmin=-.5, vmax=.5)
                     plt.title(title)
                     plt.imshow(im)
@@ -307,12 +320,13 @@ class TestRenderer(unittest.TestCase):
 
     def test_lightpos_derivatives(self):
         
-        mesh, lighting, camera, frustum, renderers = self.load_basics()
+        mesh, lightings, camera, frustum, renderers = self.load_basics()
         
 
         for renderer in renderers:
 
-            im_shape = (renderer.frustum['height'], renderer.frustum['width'], 3)
+            im_shape = renderer.shape
+            lighting = lightings[renderer.num_channels]
 
             # Render a rotating mesh
             mesh = get_earthmesh(trans=np.array([0,0,5]), rotation = np.array([math.pi/2.,0,0]))        
@@ -345,20 +359,19 @@ class TestRenderer(unittest.TestCase):
             dr_empirical = (np.asarray(rfwd, np.float64) - np.asarray(rbwd, np.float64)).ravel() / eps
             dr_predicted = dr.dot(col(direction.flatten())).reshape(dr_empirical.shape)
 
-            images = {
-                'shifted lightpos' : np.asarray(rfwd, np.float64)-.5,
-                r'empirical lightpos $\left(\frac{dI}{dL_p}\right)$': dr_empirical,
-                r'predicted lightpos $\left(\frac{dI}{dL_p}\right)$': dr_predicted,
-                'difference lightpos': dr_predicted-dr_empirical
-            }
+            images = OrderedDict()
+            images['shifted lightpos'] = np.asarray(rfwd, np.float64)-.5
+            images[r'empirical lightpos $\left(\frac{dI}{dL_p}\right)$'] = dr_empirical
+            images[r'predicted lightpos $\left(\frac{dI}{dL_p}\right)$'] = dr_predicted
+            images['difference lightpos'] = dr_predicted-dr_empirical
 
             nonzero = images['difference lightpos'][np.nonzero(images['difference lightpos']!=0)[0]]
 
             if visualize:
                 matplotlib.rcParams.update({'font.size': 18})
                 plt.figure(figsize=(6*3, 2*3))
-                for idx, title in enumerate(sorted(images.keys(), reverse=True)):
-                    plt.subplot(1,len(images.keys()), idx)
+                for idx, title in enumerate(images.keys()):
+                    plt.subplot(1,len(images.keys()), idx+1)
                     im = process(images[title].reshape(im_shape), vmin=-.5, vmax=.5)
                     plt.title(title)
                     plt.imshow(im)
@@ -373,23 +386,28 @@ class TestRenderer(unittest.TestCase):
         
     def test_color_derivatives(self):
         
-        mesh, lighting, camera, frustum, renderers = self.load_basics()
+        mesh, lightings, camera, frustum, renderers = self.load_basics()
         
         for renderer in renderers:
 
-            im_shape = (renderer.frustum['height'], renderer.frustum['width'], 3)
+            im_shape = renderer.shape
+            lighting = lightings[renderer.num_channels]
 
             # Get pixels and dI/dC
             mesh = get_earthmesh(trans=np.array([0,0,5]), rotation = np.array([math.pi/2.,0,0]))        
-            mesh_verts = Ch(mesh.v.flatten())
-            mesh_colors = Ch(mesh.vc.flatten())
+            mesh_verts = Ch(mesh.v)
+            mesh_colors = Ch(mesh.vc)
 
             camera.set(v=mesh_verts)            
 
             # import pdb; pdb.set_trace()
             # print '-------------------------------------------'
-            #lighting.set(vc=mesh_colors, v=mesh_verts)            
-            lighting.vc = mesh_colors
+            #lighting.set(vc=mesh_colors, v=mesh_verts)
+
+            try:
+                lighting.vc = mesh_colors[:,:renderer.num_channels]
+            except:
+                import pdb; pdb.set_trace()
             lighting.v = mesh_verts
 
             renderer.set(v=mesh_verts, vc=lighting)
@@ -402,34 +420,37 @@ class TestRenderer(unittest.TestCase):
             direction = (np.random.randn(mesh.v.size).reshape(mesh.v.shape)*.1 + np.sin(mesh.v*19)*.1).flatten()
 
             # Find empirical forward derivatives in that direction
-            mesh_colors = Ch(mesh.vc.flatten()+direction*eps/2.)
-            lighting.set(vc=mesh_colors)
+            mesh_colors = Ch(mesh.vc+direction.reshape(mesh.vc.shape)*eps/2.)
+            lighting.set(vc=mesh_colors[:,:renderer.num_channels])
             renderer.set(vc=lighting)
             rfwd = renderer.r
 
             # Find empirical backward derivatives in that direction
-            mesh_colors = Ch(mesh.vc.flatten()-direction*eps/2.)
-            lighting.set(vc=mesh_colors)
+            mesh_colors = Ch(mesh.vc-direction.reshape(mesh.vc.shape)*eps/2.)
+            lighting.set(vc=mesh_colors[:,:renderer.num_channels])
             renderer.set(vc=lighting)
             rbwd = renderer.r
 
             dr_empirical = (np.asarray(rfwd, np.float64) - np.asarray(rbwd, np.float64)).ravel() / eps
-            dr_predicted = dr.dot(col(direction.flatten())).reshape(dr_empirical.shape)
 
-            images = {
-                'shifted colors' : np.asarray(rfwd, np.float64)-.5,
-                r'empirical colors $\left(\frac{dI}{dC}\right)$': dr_empirical,
-                r'predicted colors $\left(\frac{dI}{dC}\right)$': dr_predicted,
-                'difference colors': dr_predicted-dr_empirical
-            }
+            try:
+                dr_predicted = dr.dot(col(direction.flatten())).reshape(dr_empirical.shape)
+            except:
+                import pdb; pdb.set_trace()
+
+            images = OrderedDict()
+            images['shifted colors'] = np.asarray(rfwd, np.float64)-.5
+            images[r'empirical colors $\left(\frac{dI}{dC}\right)$'] = dr_empirical
+            images[r'predicted colors $\left(\frac{dI}{dC}\right)$'] = dr_predicted
+            images['difference colors'] = dr_predicted-dr_empirical
 
             nonzero = images['difference colors'][np.nonzero(images['difference colors']!=0)[0]]
 
             if visualize:
                 matplotlib.rcParams.update({'font.size': 18})
                 plt.figure(figsize=(6*3, 2*3))
-                for idx, title in enumerate(sorted(images.keys(), reverse=True)):
-                    plt.subplot(1,len(images.keys()), idx)
+                for idx, title in enumerate(images.keys()):
+                    plt.subplot(1,len(images.keys()), idx+1)
                     im = process(images[title].reshape(im_shape), vmin=-.5, vmax=.5)
                     plt.title(title)
                     plt.imshow(im)

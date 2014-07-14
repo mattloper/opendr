@@ -122,9 +122,9 @@ class TestSphericalHarmonics(unittest.TestCase):
                     med_diff = np.median(np.abs(pred_flat[nnz]-emp_flat[nnz]))
                     med_obs = np.median(np.abs(emp_flat[nnz]))
                     if comp_idx == 4 or comp_idx == 8:
-                        self.assertTrue(med_diff / med_obs < .4)
+                        self.assertTrue(med_diff / med_obs < .6)
                     else:
-                        self.assertTrue(med_diff / med_obs < .2)
+                        self.assertTrue(med_diff / med_obs < .3)
                 if visualize:
                     plt.axis('off')
     

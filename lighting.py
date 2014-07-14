@@ -57,6 +57,10 @@ class SphericalHarmonics(Ch):
 	np.sqrt(15)/d_sqrt_pi,
 	np.sqrt(15)/(2*d_sqrt_pi)])
 
+    @property
+    def num_channels(self):
+        return self.light_color.size
+
     def on_changed(self, which):
         if 'vn' in which:
             vn = self.vn.r.reshape((-1,3))
@@ -70,10 +74,11 @@ class SphericalHarmonics(Ch):
             self.num_verts = self.sh_coeffs.shape[0]
 
         if 'light_color' in which or self.mtx.shape[1] != self.num_verts:
-            IS = np.arange(self.num_verts*3)
-            JS = np.repeat(np.arange(self.num_verts), 3)
-            data = (row(self.light_color)*np.ones((self.num_verts, 3))).ravel()
-            self.mtx = sp.csc_matrix((data, (IS,JS)), shape=(self.num_verts*3, self.num_verts))
+            nc = self.num_channels
+            IS = np.arange(self.num_verts*nc)
+            JS = np.repeat(np.arange(self.num_verts), nc)
+            data = (row(self.light_color)*np.ones((self.num_verts, nc))).ravel()
+            self.mtx = sp.csc_matrix((data, (IS,JS)), shape=(self.num_verts*nc, self.num_verts))
             
     
     def compute_r(self):
@@ -81,7 +86,7 @@ class SphericalHarmonics(Ch):
         n = len(comps)
         result = self.mtx.dot(self.sh_coeffs[:,:n].dot(col(self.components.r)))
         result[result<0] = 0
-        return result.reshape((-1,3))
+        return result.reshape((-1,self.num_channels))
     
     def compute_dr_wrt(self, wrt):
         comps = np.zeros(9)
@@ -159,16 +164,19 @@ class LambertianPointLight(Ch):
             self._lpl.a.a.a = self.ldn.reshape((-1,1))
 
         if 'num_verts' in which or 'light_color' in which:
-            IS = np.arange(self.num_verts*3)
-            JS = np.repeat(np.arange(self.num_verts), 3)
-            data = (row(self.light_color)*np.ones((self.num_verts, 3))).ravel()
-            mtx = sp.csc_matrix((data, (IS,JS)), shape=(self.num_verts*3, self.num_verts))
-            self._lpl.a.a.b = self.light_color.reshape((1,3))
+            # nc = self.num_channels
+            # IS = np.arange(self.num_verts*nc)
+            # JS = np.repeat(np.arange(self.num_verts), 3)
+            # data = (row(self.light_color)*np.ones((self.num_verts, 3))).ravel()
+            # mtx = sp.csc_matrix((data, (IS,JS)), shape=(self.num_verts*3, self.num_verts))
+            self._lpl.a.a.b = self.light_color.reshape((1,self.num_channels))
 
         if 'vc' in which:
-            self._lpl.a.b = self.vc.reshape((-1,3))
+            self._lpl.a.b = self.vc.reshape((-1,self.num_channels))
 
-        
+    @property
+    def num_channels(self):
+        return self.light_color.size
         
     def compute_r(self):
         return self._lpl.r
@@ -179,12 +187,12 @@ class LambertianPointLight(Ch):
 
 
 
-def compute_light_repeat(num_verts):    
-    IS = np.arange(num_verts*3)
-    JS = IS % 3
-    data = np.ones_like(IS, dtype=np.float64)    
-    ij = np.vstack((row(IS), row(JS)))
-    return sp.csc_matrix((data, ij), shape=(num_verts*3, 3))    
+# def compute_light_repeat(num_verts):
+#     IS = np.arange(num_verts*3)
+#     JS = IS % 3
+#     data = np.ones_like(IS, dtype=np.float64)
+#     ij = np.vstack((row(IS), row(JS)))
+#     return sp.csc_matrix((data, ij), shape=(num_verts*3, 3))
 
 def LightDotNormal(num_verts):
 
