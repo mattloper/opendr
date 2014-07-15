@@ -15,14 +15,14 @@ def get_earthmesh(trans, rotation):
     if not hasattr(get_earthmesh, 'm'):
 
         def wg(url):
-            dest = join(split(__file__)[0], split(url)[1])
+            dest = join('/tmp', split(url)[1])
             if not exists(dest):
                 wget(url, dest)
         wg('http://files.is.tue.mpg.de/mloper/opendr/images/nasa_earth.obj')
         wg('http://files.is.tue.mpg.de/mloper/opendr/images/nasa_earth.mtl')
         wg('http://files.is.tue.mpg.de/mloper/opendr/images/nasa_earth.jpg')
 
-        fname = join(split(__file__)[0], 'nasa_earth.obj')
+        fname = join('/tmp', 'nasa_earth.obj')
         mesh = load_mesh(fname)
 
         mesh.v = np.asarray(mesh.v, order='C')

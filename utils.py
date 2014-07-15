@@ -15,7 +15,6 @@ def mstack(vs, fs):
     return v, f
 
 
-
 def wget(url, dest_fname=None):
     import urllib2
     from os.path import split, join

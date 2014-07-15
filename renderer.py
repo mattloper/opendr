@@ -86,9 +86,6 @@ class BaseRenderer(Ch):
         return self.primitives_per_edge[0]
 
 
-
-
-
 class DepthRenderer(BaseRenderer):
     terms = 'f', 'frustum', 'background_image','overdraw'
     dterms = 'camera', 'v'        
@@ -347,8 +344,6 @@ class ColoredRenderer(BaseRenderer):
     def flow_to(self, v_next, cam_next=None):
         return common.flow_to(self, v_next, cam_next)
 
-
-
     def filter_for_triangles(self, which_triangles):
         cim = self.color_image
         vim = self.visibility_image+1
@@ -392,7 +387,6 @@ class ColoredRenderer(BaseRenderer):
         except:
             import pdb; pdb.set_trace()
 
-
     @depends_on(dterms+terms)
     def color_image(self):
         gl = self.glf
@@ -410,7 +404,6 @@ class ColoredRenderer(BaseRenderer):
         if self.num_channels > 1:
             boundarybool_image = np.atleast_3d(boundarybool_image)
         return np.asarray((overdraw*boundarybool_image + no_overdraw*(1-boundarybool_image)), order='C')
-
 
     @depends_on('f', 'frustum', 'camera')
     def boundary_images(self):
