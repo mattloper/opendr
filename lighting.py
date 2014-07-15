@@ -141,6 +141,28 @@ class SphericalHarmonics(Ch):
         return gr_equal_zero.dot(result)
     
 
+def lambertian_spotlight(v, vn, pos, dir, spot_exponent):
+    """
+    :param v: vertices
+    :param vn: vertex normals
+    :param light_pos: light position
+    :param light_dir: light direction
+    :param spot_exponent: spot exponent (a la opengl)
+    :return: Vx1 array of brightness
+    """
+    dir = dir / ch.sqrt(ch.sum(dir**2.))
+    normalize_rows = lambda v : v / col(ch.sqrt(ch.sum(v.reshape((-1,3))**2, axis=1)))
+    v_minus_light_normed = normalize_rows(v - pos.reshape((1,3)))
+    cosangle = v_minus_light_normed.dot(dir.reshape((3,1)))
+    light_dot_normal = ch.sum(vn*v_minus_light_normed, axis=1)
+    light_dot_normal.label = 'light_dot_normal'
+    cosangle.label = 'cosangle'
+    result = light_dot_normal.ravel() * cosangle.ravel()**spot_exponent
+    return maximum(result, 0.0)
+
+
+
+
 
 class LambertianPointLight(Ch):
     terms = 'f', 'num_verts', 'light_color'
