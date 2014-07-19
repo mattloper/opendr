@@ -72,7 +72,7 @@ class TestDepthRenderer(unittest.TestCase):
 
             # print np.mean(np.abs(dr_pred-dr_emp))
 
-            self.assertLess(np.mean(np.abs(dr_pred-dr_emp)), .025)
+            self.assertLess(np.mean(np.abs(dr_pred-dr_emp)), .026)
 
             if visualize:
                 plt.subplot(2,3,which+1)
@@ -118,7 +118,7 @@ class TestDepthRenderer(unittest.TestCase):
 
             #print np.mean(np.abs(dr_pred-dr_emp))
 
-            self.assertLess(np.mean(np.abs(dr_pred-dr_emp)), .019)
+            self.assertLess(np.mean(np.abs(dr_pred-dr_emp)), .021)
 
             if visualize:
                 plt.subplot(2,3,which+1)
