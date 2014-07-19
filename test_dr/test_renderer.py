@@ -164,7 +164,7 @@ class TestRenderer(unittest.TestCase):
         mesh, lightings, camera, frustum, renderers = self.load_basics()
 
         camparms = {
-            'c': {'mednz' : 2.2e-2, 'meannz': 4.0e-2, 'desc': 'center of proj diff', 'eps0': 4., 'eps1': .1},
+            'c': {'mednz' : 2.2e-2, 'meannz': 4.1e-2, 'desc': 'center of proj diff', 'eps0': 4., 'eps1': .1},
             #'f': {'mednz' : 2.5e-2, 'meannz': 6e-2, 'desc': 'focal diff', 'eps0': 100., 'eps1': .1},
             't': {'mednz' : 1.2e-1, 'meannz': 2.8e-1, 'desc': 'trans diff', 'eps0': .25, 'eps1': .1},
             'rt': {'mednz' : 8e-2, 'meannz': 1.8e-1, 'desc': 'rot diff', 'eps0': 0.02, 'eps1': .5},
