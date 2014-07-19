@@ -63,8 +63,8 @@ class TestCamera(unittest.TestCase):
             # print 'max diff: %.2e' % (max_diff,)
             #print 'pct diff: %.2e%%' % (pct_diff,)
 
-            self.assertTrue(med_diff < 1e-8)
-            self.assertTrue(max_diff < 5e-8)
+            self.assertLess(med_diff, 1e-8)
+            self.assertLess(max_diff, 5e-8)
             
 
         pp_dist = cls(**cam_params)

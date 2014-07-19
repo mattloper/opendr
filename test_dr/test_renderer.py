@@ -124,10 +124,10 @@ class TestRenderer(unittest.TestCase):
         d1 = d1[d1 != 0.]
         d2 = d2[d2 != 0.]
 
-        self.assertTrue(np.mean(d1**2) / np.mean(d2**2) > 44.)
-        self.assertTrue(np.mean(d2**2)<0.0016)
-        self.assertTrue(np.median(d1**2) / np.median(d2**2) > 650)
-        self.assertTrue(np.median(d2**2) < 1.9e-5)
+        self.assertGreater(np.mean(d1**2) / np.mean(d2**2), 44.)
+        self.assertLess(np.mean(d2**2), 0.0016)
+        self.assertGreater(np.median(d1**2) / np.median(d2**2), 650)
+        self.assertLess(np.median(d2**2), 1.9e-5)
 
 
         if visualize:
@@ -246,8 +246,8 @@ class TestRenderer(unittest.TestCase):
                     plt.draw()
                     plt.show()
 
-                self.assertTrue(meanerror<info['meannz'])
-                self.assertTrue(mederror<info['mednz'])
+                self.assertLess(meanerror, info['meannz'])
+                self.assertLess(mederror, info['mednz'])
 
         
     def test_vert_derivatives(self):
@@ -314,8 +314,8 @@ class TestRenderer(unittest.TestCase):
                 plt.draw()
                 plt.show()
 
-            self.assertTrue(np.mean(np.abs(nonzero))<7e-2)
-            self.assertTrue(np.median(np.abs(nonzero))<4e-2)
+            self.assertLess(np.mean(np.abs(nonzero)), 7e-2)
+            self.assertLess(np.median(np.abs(nonzero)), 4e-2)
             
 
     def test_lightpos_derivatives(self):
@@ -379,8 +379,8 @@ class TestRenderer(unittest.TestCase):
                 plt.show()
                 print 'lightpos: median nonzero %.2e' % (np.median(np.abs(nonzero)),)
                 print 'lightpos: mean nonzero %.2e' % (np.mean(np.abs(nonzero)),)
-            self.assertTrue(np.mean(np.abs(nonzero))<2.4e-2)
-            self.assertTrue(np.median(np.abs(nonzero))<1.2e-2)
+            self.assertLess(np.mean(np.abs(nonzero)), 2.4e-2)
+            self.assertLess(np.median(np.abs(nonzero)), 1.2e-2)
             
         
         
@@ -458,8 +458,8 @@ class TestRenderer(unittest.TestCase):
                 plt.show()
                 print 'color: median nonzero %.2e' % (np.median(np.abs(nonzero)),)
                 print 'color: mean nonzero %.2e' % (np.mean(np.abs(nonzero)),)
-            self.assertTrue(np.mean(np.abs(nonzero))<2e-2)
-            self.assertTrue(np.median(np.abs(nonzero))<4.5e-3)
+            self.assertLess(np.mean(np.abs(nonzero)), 2e-2)
+            self.assertLess(np.median(np.abs(nonzero)), 4.5e-3)
                      
 
 

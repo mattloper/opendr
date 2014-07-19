@@ -34,9 +34,9 @@ class TestDepthRenderer(unittest.TestCase):
 
         # print np.min(rn.r.ravel())
         # print np.max(rn.r.ravel())
-        self.assertTrue(np.abs(np.min(rn.r.ravel()) - 3.98) < 1e-5)
-        self.assertTrue(np.abs(np.min(m.v[:,2]) - np.min(rn.r.ravel())) < 1e-5)
-        self.assertTrue(np.abs(rn.r[h/2,w/2] - 3.98) < 1e-5)
+        self.assertLess(np.abs(np.min(rn.r.ravel()) - 3.98), 1e-5)
+        self.assertLess(np.abs(np.min(m.v[:,2]) - np.min(rn.r.ravel())), 1e-5)
+        self.assertLess(np.abs(rn.r[h/2,w/2] - 3.98), 1e-5)
 
     def test_derivatives(self):
         import chumpy as ch
@@ -72,7 +72,7 @@ class TestDepthRenderer(unittest.TestCase):
 
             # print np.mean(np.abs(dr_pred-dr_emp))
 
-            self.assertTrue(np.mean(np.abs(dr_pred-dr_emp)) < .025)
+            self.assertLess(np.mean(np.abs(dr_pred-dr_emp)), .025)
 
             if visualize:
                 plt.subplot(2,3,which+1)
@@ -118,7 +118,7 @@ class TestDepthRenderer(unittest.TestCase):
 
             #print np.mean(np.abs(dr_pred-dr_emp))
 
-            self.assertTrue(np.mean(np.abs(dr_pred-dr_emp)) < .019)
+            self.assertLess(np.mean(np.abs(dr_pred-dr_emp)), .019)
 
             if visualize:
                 plt.subplot(2,3,which+1)
