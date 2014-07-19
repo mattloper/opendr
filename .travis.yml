@@ -6,7 +6,7 @@ virtualenv:
 before_install:
   - sudo add-apt-repository ppa:pylab/stable -y
   - sudo apt-get update -q
-  - sudo apt-get install -qq libopenblas-dev liblapack-dev gfortran # install these ones first
+  - sudo apt-get install -qq libopenblas-dev liblapack-dev gfortran # install these first
   - sudo apt-get install -qq python-numpy python-scipy
   - sudo pip install git+git://github.com/mattloper/chumpy.git
 script: make test
