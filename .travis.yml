@@ -8,6 +8,7 @@ before_install:
   - sudo apt-get update -q
   - sudo apt-get install -qq libopenblas-dev liblapack-dev gfortran # install these first
   - sudo apt-get install -qq python-numpy python-scipy
+  - sudo apt-get install -qq python-opencv
   - sudo pip install Cython
   - sudo pip install git+git://github.com/mattloper/chumpy.git
 script: make test
