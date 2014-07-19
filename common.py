@@ -13,7 +13,7 @@ import cv2
 import scipy.stats
 
 from chumpy.utils import row, col
-from .contexts._constants import *
+from contexts._constants import *
 
 def nanmean(a, axis):
     # don't call nan_to_num in here, unless you check that

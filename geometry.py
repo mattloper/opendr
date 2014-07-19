@@ -16,7 +16,7 @@ from chumpy.utils import row, col
 from chumpy import *
 import chumpy as ch
 from chumpy.ch import MatVecMult
-from opendr.topology import get_faces_per_edge, get_vert_connectivity
+from topology import get_faces_per_edge, get_vert_connectivity
 
 
 def volume(v, f):

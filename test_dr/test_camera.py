@@ -9,7 +9,7 @@ See LICENCE.txt for licensing and contact information.
 import unittest
 import numpy as np
 
-from opendr.camera import *
+from camera import *
 import chumpy as ch
 
 

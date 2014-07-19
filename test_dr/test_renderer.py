@@ -17,11 +17,11 @@ try:
 except:
     from dummy import dummy as plt
 
-from opendr.renderer import *
+from renderer import *
 from chumpy import Ch
 from chumpy.utils import row, col
-from opendr.lighting import *
-from opendr.test_dr.common import get_earthmesh, process
+from lighting import *
+from test_dr.common import get_earthmesh, process
 from collections import OrderedDict
 
 
@@ -29,7 +29,7 @@ from collections import OrderedDict
 visualize = False
     
 def getcam():
-    from opendr.camera import ProjectPoints
+    from camera import ProjectPoints
 
     w = 256
     h = 192

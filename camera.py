@@ -15,7 +15,7 @@ import cv2
 import numpy as np
 import scipy.sparse as sp
 from chumpy.utils import row, col
-from opendr.geometry import Rodrigues
+from geometry import Rodrigues
 
 def RigidTransformSlow(**kwargs):
     # Returns a Ch object with dterms 'v', 'rt', and 't'
