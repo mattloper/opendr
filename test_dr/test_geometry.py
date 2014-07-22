@@ -20,7 +20,7 @@ class TestGeometry(unittest.TestCase):
         np.random.seed(0)
 
     def test_rodrigues(self):
-        from opendr.geometry import Rodrigues
+        from geometry import Rodrigues
         rt = np.random.randn(3)
         rt2 = rt + np.random.rand(3)*1e-5
         foo1 = Rodrigues(rt = rt)
@@ -33,7 +33,7 @@ class TestGeometry(unittest.TestCase):
         
 
     def test_vert_normals(self):
-        from opendr.geometry import VertNormals
+        from geometry import VertNormals
         import numpy as np
 
         mesh = get_earthmesh(np.zeros(3), np.zeros(3))

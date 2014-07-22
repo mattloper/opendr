@@ -15,7 +15,7 @@ import cv2
 import numpy as np
 import scipy.sparse as sp
 from chumpy.utils import row, col
-from opendr.geometry import Rodrigues
+from geometry import Rodrigues
 
 def RigidTransformSlow(**kwargs):
     # Returns a Ch object with dterms 'v', 'rt', and 't'
@@ -107,11 +107,7 @@ class ProjectPoints(Ch):
     def unproject_points(self, uvd, camera_space=False):
         cam = ProjectPoints3D(**{k: getattr(self, k)  for k in self.dterms if hasattr(self, k)})
 
-        if False: # slow way, probably not so good
-            cam.v = np.ones_like(uvd)
-            ch.minimize(cam - uvd, x0=[cam.v], method='dogleg', options={'disp': 0})
-            result = cam.v.r
-        else:
+        try:
             xy_undistorted_camspace = cv2.undistortPoints(np.asarray(uvd[:,:2].reshape((1,-1,2)).copy()), np.asarray(cam.camera_mtx), cam.k.r)
             xyz_camera_space = np.hstack((xy_undistorted_camspace.squeeze(), col(uvd[:,2])))
             xyz_camera_space[:,:2] *= col(xyz_camera_space[:,2]) # scale x,y by z
@@ -119,6 +115,10 @@ class ProjectPoints(Ch):
                 return xyz_camera_space
             other_answer = xyz_camera_space - row(cam.view_mtx[:,3]) # translate
             result = other_answer.dot(cam.view_mtx[:,:3]) # rotate
+        except: # slow way, probably not so good. But doesn't require cv2.undistortPoints.
+            cam.v = np.ones_like(uvd)
+            ch.minimize(cam - uvd, x0=[cam.v], method='dogleg', options={'disp': 0})
+            result = cam.v.r
         return result
 
     def unproject_depth_image(self, depth_image, camera_space=False):

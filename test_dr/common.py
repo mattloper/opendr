@@ -6,10 +6,10 @@ import numpy as np
 import cv2
 
 from chumpy.utils import row, col
-from opendr.utils import wget
+from utils import wget
 
 def get_earthmesh(trans, rotation):
-    from opendr.serialization import load_mesh
+    from serialization import load_mesh
 
     from copy import deepcopy
     if not hasattr(get_earthmesh, 'm'):

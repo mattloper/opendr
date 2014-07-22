@@ -9,18 +9,18 @@ See LICENCE.txt for licensing and contact information.
 from chumpy import Ch
 import numpy as np
 from chumpy.utils import row, col
-from opendr.lighting import SphericalHarmonics
+from lighting import SphericalHarmonics
 import unittest
 try:
     import matplotlib.pyplot as plt
 except:
     from dummy import dummy as plt
-from opendr.topology import loop_subdivider
+from topology import loop_subdivider
 
 visualize = False
 
 def getcam():
-    from opendr.camera import ProjectPoints3D
+    from camera import ProjectPoints3D
 
     w = 640
     h = 320
@@ -50,7 +50,7 @@ class TestSphericalHarmonics(unittest.TestCase):
         # Get mesh
         v, f = get_sphere_mesh()
 
-        from opendr.geometry import VertNormals
+        from geometry import VertNormals
         vn = VertNormals(v=v, f=f)
         #vn =  Ch(mesh.estimate_vertex_normals())
 
@@ -58,7 +58,7 @@ class TestSphericalHarmonics(unittest.TestCase):
         cam, frustum = getcam()
     
         # Get renderer
-        from opendr.renderer import ColoredRenderer
+        from renderer import ColoredRenderer
         cam.v = v
         cr = ColoredRenderer(f=f, camera=cam, frustum=frustum, v=v)
     
@@ -130,7 +130,7 @@ class TestSphericalHarmonics(unittest.TestCase):
     
 
 def get_sphere_mesh():
-    from opendr.test_dr.common import get_earthmesh
+    from test_dr.common import get_earthmesh
 
     mesh = get_earthmesh(np.zeros(3), np.zeros(3)) # load_mesh(filename)
     v, f = mesh.v*64., mesh.f

@@ -17,11 +17,11 @@ try:
 except:
     from dummy import dummy as plt
 
-from opendr.renderer import *
+from renderer import *
 from chumpy import Ch
 from chumpy.utils import row, col
-from opendr.lighting import *
-from opendr.test_dr.common import get_earthmesh, process
+from lighting import *
+from test_dr.common import get_earthmesh, process
 from collections import OrderedDict
 
 
@@ -29,7 +29,7 @@ from collections import OrderedDict
 visualize = False
     
 def getcam():
-    from opendr.camera import ProjectPoints
+    from camera import ProjectPoints
 
     w = 256
     h = 192
@@ -124,10 +124,10 @@ class TestRenderer(unittest.TestCase):
         d1 = d1[d1 != 0.]
         d2 = d2[d2 != 0.]
 
-        self.assertTrue(np.mean(d1**2) / np.mean(d2**2) > 44.)
-        self.assertTrue(np.mean(d2**2)<0.0016)
-        self.assertTrue(np.median(d1**2) / np.median(d2**2) > 650)
-        self.assertTrue(np.median(d2**2) < 1.9e-5)
+        self.assertGreater(np.mean(d1**2) / np.mean(d2**2), 44.)
+        self.assertLess(np.mean(d2**2), 0.0016)
+        self.assertGreater(np.median(d1**2) / np.median(d2**2), 650)
+        self.assertLess(np.median(d2**2), 1.9e-5)
 
 
         if visualize:
@@ -164,9 +164,9 @@ class TestRenderer(unittest.TestCase):
         mesh, lightings, camera, frustum, renderers = self.load_basics()
 
         camparms = {
-            'c': {'mednz' : 1.9e-2, 'meannz': 4.0e-2, 'desc': 'center of proj diff', 'eps0': 4., 'eps1': .1},
+            'c': {'mednz' : 2.2e-2, 'meannz': 4.1e-2, 'desc': 'center of proj diff', 'eps0': 4., 'eps1': .1},
             #'f': {'mednz' : 2.5e-2, 'meannz': 6e-2, 'desc': 'focal diff', 'eps0': 100., 'eps1': .1},
-            't': {'mednz' : 1.1e-1, 'meannz': 2.7e-1, 'desc': 'trans diff', 'eps0': .25, 'eps1': .1},
+            't': {'mednz' : 1.2e-1, 'meannz': 2.8e-1, 'desc': 'trans diff', 'eps0': .25, 'eps1': .1},
             'rt': {'mednz' : 8e-2, 'meannz': 1.8e-1, 'desc': 'rot diff', 'eps0': 0.02, 'eps1': .5},
             'k': {'mednz' : 7e-2, 'meannz': 5.1e-1, 'desc': 'distortion diff', 'eps0': .5, 'eps1': .05}
         }
@@ -246,8 +246,8 @@ class TestRenderer(unittest.TestCase):
                     plt.draw()
                     plt.show()
 
-                self.assertTrue(meanerror<info['meannz'])
-                self.assertTrue(mederror<info['mednz'])
+                self.assertLess(meanerror, info['meannz'])
+                self.assertLess(mederror, info['mednz'])
 
         
     def test_vert_derivatives(self):
@@ -314,8 +314,8 @@ class TestRenderer(unittest.TestCase):
                 plt.draw()
                 plt.show()
 
-            self.assertTrue(np.mean(np.abs(nonzero))<7e-2)
-            self.assertTrue(np.median(np.abs(nonzero))<4e-2)
+            self.assertLess(np.mean(np.abs(nonzero)), 7e-2)
+            self.assertLess(np.median(np.abs(nonzero)), 4e-2)
             
 
     def test_lightpos_derivatives(self):
@@ -379,8 +379,8 @@ class TestRenderer(unittest.TestCase):
                 plt.show()
                 print 'lightpos: median nonzero %.2e' % (np.median(np.abs(nonzero)),)
                 print 'lightpos: mean nonzero %.2e' % (np.mean(np.abs(nonzero)),)
-            self.assertTrue(np.mean(np.abs(nonzero))<2.4e-2)
-            self.assertTrue(np.median(np.abs(nonzero))<1.2e-2)
+            self.assertLess(np.mean(np.abs(nonzero)), 2.4e-2)
+            self.assertLess(np.median(np.abs(nonzero)), 1.2e-2)
             
         
         
@@ -458,8 +458,8 @@ class TestRenderer(unittest.TestCase):
                 plt.show()
                 print 'color: median nonzero %.2e' % (np.median(np.abs(nonzero)),)
                 print 'color: mean nonzero %.2e' % (np.mean(np.abs(nonzero)),)
-            self.assertTrue(np.mean(np.abs(nonzero))<2e-2)
-            self.assertTrue(np.median(np.abs(nonzero))<4.5e-3)
+            self.assertLess(np.mean(np.abs(nonzero)), 2e-2)
+            self.assertLess(np.median(np.abs(nonzero)), 4.5e-3)
                      
 
 

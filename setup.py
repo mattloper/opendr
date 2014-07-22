@@ -73,6 +73,8 @@ def mesa_ext():
     if platform.system()=='Darwin':
         libraries.append('talloc')
         extra_args.append('-Qunused-arguments')
+    else:
+        extra_args.append('-lstdc++')
     return Extension("contexts.ctx_mesa", ['contexts/ctx_mesa.pyx'],
                         language="c",
                         library_dirs=['contexts/OSMesa/lib'],

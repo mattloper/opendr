@@ -11,7 +11,7 @@ __all__ = ['load_mesh', 'load_image']
 from os.path import split, splitext, join, exists, normpath
 import cv2
 import numpy as np
-from opendr.dummy import Minimal
+from dummy import Minimal
 
 
 def load_image(filename):
