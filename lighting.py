@@ -141,24 +141,39 @@ class SphericalHarmonics(Ch):
         return gr_equal_zero.dot(result)
     
 
-def lambertian_spotlight(v, vn, pos, dir, spot_exponent):
+def lambertian_spotlight(v, vn, pos, dir, spot_exponent, camcoord=False, camera_t=None, camera_rt=None):
     """
     :param v: vertices
     :param vn: vertex normals
     :param light_pos: light position
     :param light_dir: light direction
     :param spot_exponent: spot exponent (a la opengl)
+    :param camcoord: if True, then pos and dir are wrt the camera
+    :param camera_t: 3-vector indicating translation of camera
+    :param camera_rt: 3-vector indicating direction of camera
     :return: Vx1 array of brightness
     """
+
+    if camcoord: # Transform pos and dir from camera to world coordinate system
+        assert(camera_t is not None and camera_rt is not None)
+        from opendr.geometry import Rodrigues
+        rot = Rodrigues(rt=camera_rt)
+        pos = rot.T.dot(pos-camera_t)
+        dir = rot.T.dot(dir)
+
     dir = dir / ch.sqrt(ch.sum(dir**2.))
-    normalize_rows = lambda v : v / col(ch.sqrt(ch.sum(v.reshape((-1,3))**2, axis=1)))
-    v_minus_light_normed = normalize_rows(v - pos.reshape((1,3)))
+    v_minus_light = v - pos.reshape((1,3))
+    v_distances = ch.sqrt(ch.sum(v_minus_light**2, axis=1))
+    v_minus_light_normed = v_minus_light / v_distances.reshape((-1,1))
     cosangle = v_minus_light_normed.dot(dir.reshape((3,1)))
     light_dot_normal = ch.sum(vn*v_minus_light_normed, axis=1)
     light_dot_normal.label = 'light_dot_normal'
     cosangle.label = 'cosangle'
     result = light_dot_normal.ravel() * cosangle.ravel()**spot_exponent
-    return maximum(result, 0.0)
+    result = result / v_distances ** 2.
+    result = maximum(result, 0.0)
+
+    return result
 
 
 
