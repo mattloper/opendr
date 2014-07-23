@@ -1,4 +1,4 @@
-global-include . *.py *.c *.h Makefile nasa*
+global-include . *.py *.c *.h Makefile nasa* *.pyx
 prune contexts/OSMesa
 global-exclude . rogrenderer*
 
