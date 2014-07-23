@@ -259,10 +259,9 @@ class BoundaryRenderer(BaseRenderer):
             setup_camera(self.glb, self.camera, self.frustum)
             setup_camera(self.glf, self.camera, self.frustum)
             
-
-
-
-
+        if not hasattr(self, 'overdraw'):
+            self.overdraw = True
+            
     @depends_on(terms+dterms)
     def color_image(self):
         self._call_on_changed()
