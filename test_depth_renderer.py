@@ -17,7 +17,7 @@ class TestDepthRenderer(unittest.TestCase):
         rn = DepthRenderer()
 
         # Assign attributes to renderer
-        from test_dr.common import get_earthmesh
+        from util_tests import get_earthmesh
         m = get_earthmesh(trans=ch.array([0,0,0]), rotation=ch.zeros(3))
         m.v = m.v * .01
         m.v[:,2] += 4
@@ -47,7 +47,7 @@ class TestDepthRenderer(unittest.TestCase):
         rn = DepthRenderer()
 
         # Assign attributes to renderer
-        from test_dr.common import get_earthmesh
+        from util_tests import get_earthmesh
         m = get_earthmesh(trans=ch.array([0,0,4]), rotation=ch.zeros(3))
         w, h = (320, 240)
         from camera import ProjectPoints
@@ -92,7 +92,7 @@ class TestDepthRenderer(unittest.TestCase):
         rn = DepthRenderer()
 
         # Assign attributes to renderer
-        from test_dr.common import get_earthmesh
+        from util_tests import get_earthmesh
         m = get_earthmesh(trans=ch.array([0,0,4]), rotation=ch.zeros(3))
         w, h = (320, 240)
         from camera import ProjectPoints

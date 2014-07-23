@@ -12,7 +12,7 @@ import unittest
 import chumpy as ch
 from chumpy import Ch
 import numpy as np
-from common import get_earthmesh
+from util_tests import get_earthmesh
 
 class TestGeometry(unittest.TestCase):
 

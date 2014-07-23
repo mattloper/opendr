@@ -17,7 +17,7 @@ from opendr.renderer import TexturedRenderer
 rn = TexturedRenderer()
 
 # Assign attributes to renderer
-from opendr.test_dr.common import get_earthmesh
+from opendr.util_tests import get_earthmesh
 m = get_earthmesh(trans=ch.array([0,0,4]), rotation=ch.zeros(3))
 w, h = (320, 240)
 from opendr.camera import ProjectPoints
@@ -35,7 +35,7 @@ dr = rn.dr_wrt(rn.v) # or rn.vc, or rn.camera.rt, rn.camera.t, rn.camera.f, rn.c
 """
 
 demos['moments'] = """
-from opendr.test_dr.common import get_earthmesh
+from opendr.util_tests import get_earthmesh
 from opendr.simple import * 
 import numpy as np
 
@@ -83,7 +83,7 @@ from opendr.lighting import LambertianPointLight
 rn = ColoredRenderer()
 
 # Assign attributes to renderer
-from opendr.test_dr.common import get_earthmesh
+from opendr.util_tests import get_earthmesh
 m = get_earthmesh(trans=ch.array([0,0,4]), rotation=ch.zeros(3))
 w, h = (320, 240)
 
@@ -122,7 +122,7 @@ from opendr.renderer import ColoredRenderer
 rn = ColoredRenderer()
 
 # Assign attributes to renderer
-from opendr.test_dr.common import get_earthmesh
+from opendr.util_tests import get_earthmesh
 m = get_earthmesh(trans=ch.array([0,0,4]), rotation=ch.zeros(3))
 w, h = (320, 240)
 from opendr.camera import ProjectPoints
@@ -146,7 +146,7 @@ from opendr.renderer import BoundaryRenderer
 rn = BoundaryRenderer()
 
 # Assign attributes to renderer
-from opendr.test_dr.common import get_earthmesh
+from opendr.util_tests import get_earthmesh
 m = get_earthmesh(trans=ch.array([0,0,4]), rotation=ch.zeros(3))
 w, h = (320, 240)
 from opendr.camera import ProjectPoints
@@ -171,7 +171,7 @@ from opendr.lighting import LambertianPointLight
 rn = ColoredRenderer()
 
 # Assign attributes to renderer
-from opendr.test_dr.common import get_earthmesh
+from opendr.util_tests import get_earthmesh
 m = get_earthmesh(trans=ch.array([0,0,4]), rotation=ch.zeros(3))
 w, h = (320, 240)
 
@@ -208,7 +208,7 @@ from opendr.geometry import VertNormals
 rn = ColoredRenderer()
 
 # Assign attributes to renderer
-from opendr.test_dr.common import get_earthmesh
+from opendr.util_tests import get_earthmesh
 m = get_earthmesh(trans=ch.array([0,0,4]), rotation=ch.zeros(3))
 w, h = (320, 240)
 from opendr.camera import ProjectPoints
@@ -240,7 +240,7 @@ w, h = 320, 240
 try:
     m = load_mesh('earth.obj')
 except:                                                             
-    from opendr.test_dr.common import get_earthmesh
+    from opendr.util_tests import get_earthmesh
     m = get_earthmesh(trans=ch.array([0,0,4]), rotation=ch.zeros(3))                                             
                                                                                 
 # Create V, A, U, f: geometry, brightness, camera, renderer                     

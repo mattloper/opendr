@@ -22,7 +22,7 @@ class TestOcclusion(unittest.TestCase):
         rn = ColoredRenderer()
 
         # Assign attributes to renderer
-        from opendr.test_dr.common import get_earthmesh
+        from util_tests import get_earthmesh
         m = get_earthmesh(trans=ch.array([0,0,4]), rotation=ch.zeros(3))
         rn.texture_image = m.texture_image
         rn.ft = m.ft

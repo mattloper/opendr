@@ -21,7 +21,7 @@ from renderer import *
 from chumpy import Ch
 from chumpy.utils import row, col
 from lighting import *
-from test_dr.common import get_earthmesh, process
+from util_tests import get_earthmesh, process
 from collections import OrderedDict
 
 

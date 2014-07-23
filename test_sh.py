@@ -130,7 +130,7 @@ class TestSphericalHarmonics(unittest.TestCase):
     
 
 def get_sphere_mesh():
-    from test_dr.common import get_earthmesh
+    from util_tests import get_earthmesh
 
     mesh = get_earthmesh(np.zeros(3), np.zeros(3)) # load_mesh(filename)
     v, f = mesh.v*64., mesh.f
