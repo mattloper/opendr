@@ -54,15 +54,16 @@ def autogen_opengl_sources():
 def setup_opendr(ext_modules):
     ext_modules=cythonize(ext_modules)
     setup(name='opendr',
-            version='0.5',
+            version='0.51',
             packages = ['opendr', 'opendr.contexts', 'opendr.test_dr'],
             package_dir = {'opendr': '.'},
             author = 'Matthew Loper',
             author_email = 'matt.loper@gmail.com',
-            url = 'http://files.is.tue.mpg/mloper/opendr/',
+            url = 'http://github.com/mattloper/opendr',
             ext_package='opendr',
             package_data={'opendr': ['test_dr/nasa*']},
             install_requires=['cython'],
+            description='opendr',
             ext_modules=ext_modules,
           )
 
