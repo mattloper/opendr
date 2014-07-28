@@ -152,12 +152,10 @@ def loop_subdivider(mesh_v, mesh_f):
             data.append(3./8)
 
             opposites = vo[(vsl[0], vsl[1])]
-            IS.append(start + idx)
-            IS.append(start + idx)
-            JS.append(opposites[0])
-            JS.append(opposites[1])
-            data.append(1./8)
-            data.append(1./8)
+            for opp in opposites:
+                IS.append(start + idx)
+                JS.append(opp)
+                data.append(2./8./len(opposites))
 
             edge_to_midpoint[(vsl[0], vsl[1])] = start + idx
             edge_to_midpoint[(vsl[1], vsl[0])] = start + idx
