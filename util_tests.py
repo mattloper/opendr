@@ -34,7 +34,7 @@ def get_earthmesh(trans, rotation):
 
     mesh = deepcopy(get_earthmesh.mesh)
     mesh.v = mesh.v.dot(cv2.Rodrigues(np.asarray(np.array(rotation), np.float64))[0])
-    mesh.v = mesh.v + row(trans)
+    mesh.v = mesh.v + row(np.asarray(trans))
     return mesh
 
 
