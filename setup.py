@@ -54,7 +54,7 @@ def autogen_opengl_sources():
 def setup_opendr(ext_modules):
     ext_modules=cythonize(ext_modules)
     setup(name='opendr',
-            version='0.57',
+            version='0.58',
             packages = ['opendr', 'opendr.contexts', 'opendr.test_dr'],
             package_dir = {'opendr': '.'},
             author = 'Matthew Loper',
@@ -97,7 +97,7 @@ def setup_opendr(ext_modules):
 def mesa_ext():
     libraries = ['OSMesa', 'GL', 'GLU']
     extra_args = []
-    if platform.system()=='Darwin':
+    if platform.system()=='Darwin': # deprecated, probably don't need osmesa libs on mac
         libraries.append('talloc')
         extra_args.append('-Qunused-arguments')
     else:
@@ -131,7 +131,7 @@ def main():
 
     # Get context extensions ready & build
     if platform.system() == 'Darwin':
-        setup_opendr([mesa_ext(), mac_ext()])
+        setup_opendr([mac_ext()])
     else:
         setup_opendr([mesa_ext()])
 
