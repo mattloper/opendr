@@ -3,7 +3,7 @@ __author__ = 'matt'
 from copy import deepcopy
 from os.path import join, split, exists
 import numpy as np
-import cv2
+from cvwrap import cv2
 
 from chumpy.utils import row, col
 from utils import wget

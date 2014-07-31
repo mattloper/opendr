@@ -68,7 +68,7 @@ class TestOcclusion(unittest.TestCase):
 
         im_orig = rn.r.copy()
 
-        import cv2
+        from cvwrap import cv2
 
         tr = t0
         eps_emp = .02

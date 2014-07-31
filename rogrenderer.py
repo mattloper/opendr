@@ -6,7 +6,7 @@ See LICENCE.txt for licensing and contact information.
 
 import sys
 import os
-import cv2
+from cvwrap import cv2
 import numpy as np
 
 from opendr.renderer import TexturedRenderer

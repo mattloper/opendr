@@ -10,7 +10,7 @@ See LICENCE.txt for licensing and contact information.
 __all__ = ['ColoredRenderer', 'TexturedRenderer', 'DepthRenderer']
 
 import numpy as np
-import cv2
+from cvwrap import cv2
 import time
 import platform
 import scipy.sparse as sp

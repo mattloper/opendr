@@ -11,7 +11,7 @@ __all__ = ['ProjectPoints3D', 'ProjectPoints', 'RigidTransform']
 
 import chumpy as ch
 from chumpy import depends_on, Ch
-import cv2
+from cvwrap import cv2
 import numpy as np
 import scipy.sparse as sp
 from chumpy.utils import row, col

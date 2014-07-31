@@ -9,7 +9,7 @@ See LICENCE.txt for licensing and contact information.
 
 __all__ = ['Rodrigues', 'VertNormals', 'VertNormalsScaled', 'TriNormals', 'TriNormalsScaled', 'CrossProduct', 'TriArea', 'AcosTriAngles', 'volume']
 
-import cv2
+from cvwrap import cv2
 import numpy as np
 import scipy.sparse as sp
 from chumpy.utils import row, col

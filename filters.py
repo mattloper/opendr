@@ -8,7 +8,7 @@ See LICENCE.txt for licensing and contact information.
 
 __all__ = ['gaussian_pyramid', 'laplacian_pyramid']
 
-import cv2
+from cvwrap import cv2
 import chumpy as ch
 import numpy as np
 from copy import deepcopy

@@ -115,7 +115,7 @@ class TestRenderer(unittest.TestCase):
             [0, 0, 1]
         ])
 
-        import cv2
+        from cvwrap import cv2
         im_undistorted = cv2.undistort(im_distorted, cmtx, cr.camera.k.r)
 
         d1 = (im_original - im_distorted).ravel()

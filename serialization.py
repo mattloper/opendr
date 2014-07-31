@@ -9,7 +9,7 @@ __author__ = 'matt'
 __all__ = ['load_mesh', 'load_image']
 
 from os.path import split, splitext, join, exists, normpath
-import cv2
+from cvwrap import cv2
 import numpy as np
 from dummy import Minimal
 

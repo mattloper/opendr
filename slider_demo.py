@@ -1,4 +1,4 @@
-import cv2
+from cvwrap import cv2
 import numpy as np
 import chumpy as ch
 from copy import deepcopy

@@ -9,7 +9,7 @@ See LICENCE.txt for licensing and contact information.
 import numpy as np
 from copy import deepcopy
 import scipy.sparse as sp
-import cv2
+from cvwrap import cv2
 import scipy.stats
 
 from chumpy.utils import row, col
