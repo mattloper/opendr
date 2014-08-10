@@ -246,7 +246,7 @@ except:
 # Create V, A, U, f: geometry, brightness, camera, renderer                     
 V = ch.array(m.v)                                                               
 A = SphericalHarmonics(vn=VertNormals(v=V, f=m.f),                              
-                       components=[3.,1.,0.,0.,0.,0.,0.,0.,0.],                 
+                       components=[3.,2.,0.,0.,0.,0.,0.,0.,0.],
                        light_color=ch.ones(3))                                  
 U = ProjectPoints(v=V, f=[300,300.], c=[w/2.,h/2.], k=ch.zeros(5),              
                   t=ch.zeros(3), rt=ch.zeros(3))                                
@@ -264,6 +264,7 @@ except:
     observed = f.r 
     translation[:] = translation.r + np.random.rand(3)*.25
     rotation[:] = rotation.r + np.random.rand(3)*.25
+    A.components[1:] = 0
 
 # Create the energy
 difference = f - observed
@@ -276,6 +277,7 @@ global plt
 
 def cb(_):
     plt.imshow(np.abs(difference.r))
+    plt.title('Absolute difference')
     plt.draw()
          
          
