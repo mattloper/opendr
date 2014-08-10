@@ -262,8 +262,8 @@ try:
     observed = load_image('earth_observed.jpg')
 except:
     observed = f.r 
-    translation[:] = translation.r + np.random.rand(3)*.25
-    rotation[:] = rotation.r + np.random.rand(3)*.25
+    translation[:] = translation.r + np.random.rand(3)*.2
+    rotation[:] = rotation.r + np.random.rand(3)*.2
     A.components[1:] = 0
 
 # Create the energy
