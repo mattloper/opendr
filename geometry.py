@@ -242,12 +242,17 @@ def AcosTriAngles(v, f, normalize):
 
 
 class VertNormals(Ch):
+    """If normalized==True, normals are normalized; otherwise they'll be about as long as neighboring edges."""
+    
     dterms = 'v'
-    terms = 'f'
+    terms = 'f' 'normalized'
     term_order = 'v', 'f'
 
     def on_changed(self, which):
 
+        if not hasattr(self, 'normalized'):
+            self.normalized = True
+            
         for w in which:
             if w not in ('v', 'f'):
                 raise Exception('VertNormals has only v and f now, and you specified %s.' % (w))
@@ -271,7 +276,18 @@ class VertNormals(Ch):
 
                 self.tns = Ch(lambda v : CrossProduct(TriEdges(f,1,0,v), TriEdges(f,2,0, v)))
                 self.tns.v = self.v
-                self.normals = NormalizedNx3(MatVecMult(self.faces_by_vertex, self.tns))
+                
+                if self.normalized:
+                    tmp = MatVecMult(self.faces_by_vertex, self.tns)
+                    self.normals = NormalizedNx3(tmp)
+                else:                    
+                    test = self.faces_by_vertex.dot(np.ones(self.faces_by_vertex.shape[1]))
+                    faces_by_vertex = sp.diags([1. / test], [0]).dot(self.faces_by_vertex).tocsc()
+                    normals = MatVecMult(faces_by_vertex, self.tns).reshape((-1,3))
+                    normals = normals / (ch.sum(normals**2, axis=1) ** .25).reshape((-1,1))
+                    self.normals = normals
+                    
+                    
 
     def compute_r(self):
         return self.normals.r.reshape((-1,3))
@@ -280,22 +296,6 @@ class VertNormals(Ch):
         if wrt is self.v:
             return self.normals.dr_wrt(wrt)
 
-
-
-def VertNormalsScaled(v, f):
-    IS = f.ravel()
-    JS = np.array([range(f.shape[0])]*3).T.ravel()
-    data = np.ones(len(JS))
-    
-    IS = np.concatenate((IS*3, IS*3+1, IS*3+2))
-    JS = np.concatenate((JS*3, JS*3+1, JS*3+2)) # is this right?
-    data = np.concatenate((data, data, data))
-    
-    sz = v.r.size if hasattr(v, 'r') else v.size
-    faces_by_vertex = sp.csc_matrix((data, (IS, JS)), shape=(sz, f.size))    
-    
-    # faces_by_vertex should be 3 x wider...?
-    return NormalizedNx3(MatVecMult(faces_by_vertex, TriNormalsScaled(v, f)))
 
 
 def TriNormals(v, f):
