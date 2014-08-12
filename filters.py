@@ -79,7 +79,7 @@ def gaussian_pyramid(input_objective, imshape=None, normalization='SSE', n_level
 
 def GaussianKernel2D(ksize, sigma):
     if ksize % 2 != 1:
-        raise Exception('ksize should be an even number')
+        raise Exception('ksize should be an odd number')
     if sigma <= 0:
         raise Exception('sigma should be positive')
     oneway = np.tile(cv2.getGaussianKernel(ksize,sigma), (1, ksize))
