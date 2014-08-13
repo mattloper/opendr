@@ -7,7 +7,7 @@ Author(s): Matthew Loper
 See LICENCE.txt for licensing and contact information.
 """
 
-__all__ = ['Rodrigues', 'VertNormals', 'VertNormalsScaled', 'TriNormals', 'TriNormalsScaled', 'CrossProduct', 'TriArea', 'AcosTriAngles', 'volume']
+__all__ = ['Rodrigues', 'VertNormals', 'TriNormals', 'TriNormalsScaled', 'CrossProduct', 'TriArea', 'AcosTriAngles', 'volume']
 
 from cvwrap import cv2
 import numpy as np
