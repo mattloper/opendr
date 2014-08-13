@@ -284,9 +284,10 @@ light_parms = A.components
 print 'OPTIMIZING TRANSLATION'                                                 
 ch.minimize({'energy': E}, x0=[translation], callback=lambda _ : cb(difference)) 
 
-print 'OPTIMIZING TRANSLATION, ROTATION, AND LIGHT PARMS'                                                 
+print 'OPTIMIZING TRANSLATION, ROTATION, AND LIGHT PARMS (coarse)'                                                 
 ch.minimize({'energy': E}, x0=[translation, rotation, light_parms], callback=cb) 
 
+print 'OPTIMIZING TRANSLATION, ROTATION, AND LIGHT PARMS (refined)'                                                 
 E = gaussian_pyramid(difference, n_levels=6, normalization='size')
 ch.minimize({'energy': E}, x0=[translation, rotation, light_parms], callback=cb) 
 
