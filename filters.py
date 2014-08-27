@@ -6,7 +6,7 @@ Author(s): Matthew Loper
 See LICENCE.txt for licensing and contact information.
 """
 
-__all__ = ['gaussian_pyramid', 'laplacian_pyramid']
+__all__ = ['gaussian_pyramid', 'laplacian_pyramid', 'GaussPyrDownOne']
 
 from cvwrap import cv2
 import chumpy as ch
@@ -26,7 +26,7 @@ def laplacian_pyramid(input_objective, imshape, normalization, n_levels, as_list
     elif normalization is 'size':
         norm2 = lambda x : x / np.sqrt(x.r.size)
     else:
-        raise Exception('Normalization must be None, SSE, or size.')
+        norm2 = normalization
 
     
     output_objs = []
@@ -58,7 +58,7 @@ def gaussian_pyramid(input_objective, imshape=None, normalization='SSE', n_level
     elif normalization is 'size':
         norm2 = lambda x : x / np.sqrt(x.r.size)
     else:
-        raise Exception('Normalization must be None, SSE, or size.')
+        norm2 = normalization
 
     cur_imshape = deepcopy(imshape)
     cur_obj = input_objective
