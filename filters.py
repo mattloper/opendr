@@ -24,7 +24,7 @@ def laplacian_pyramid(input_objective, imshape, normalization, n_levels, as_list
     elif normalization is 'SSE':
         norm2 = lambda x : x / np.sqrt(np.sum(x.r**2.))
     elif normalization is 'size':
-        norm2 = lambda x : x / np.sqrt(x.r.size)
+        norm2 = lambda x : x / x.r.size
     else:
         norm2 = normalization
 
@@ -56,7 +56,7 @@ def gaussian_pyramid(input_objective, imshape=None, normalization='SSE', n_level
     elif normalization is 'SSE':
         norm2 = lambda x : x / np.sqrt(np.sum(x.r**2.))
     elif normalization is 'size':
-        norm2 = lambda x : x / np.sqrt(x.r.size)
+        norm2 = lambda x : x / x.r.size
     else:
         norm2 = normalization
 
