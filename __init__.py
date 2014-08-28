@@ -235,13 +235,13 @@ demos['optimization'] = """
 from opendr.simple import *      
 import numpy as np 
 import matplotlib.pyplot as plt
-w, h = 640, 480
+w, h = 320, 240
         
 try:
     m = load_mesh('earth.obj')
 except:                                                             
     from opendr.util_tests import get_earthmesh
-    m = get_earthmesh(trans=ch.array([0,0,4]), rotation=ch.zeros(3))                                             
+    m = get_earthmesh(trans=ch.array([0,0,0]), rotation=ch.zeros(3))                                             
                                                                                 
 # Create V, A, U, f: geometry, brightness, camera, renderer                     
 V = ch.array(m.v)                                                               
@@ -256,33 +256,28 @@ f = TexturedRenderer(vc=A, camera=U, f=m.f, bgcolor=[0.,0.,0.],
 
 
 # Parameterize the vertices                                                     
-translation, rotation = ch.array([0,0,4]), ch.zeros(3)                          
+translation, rotation = ch.array([0,0,8]), ch.zeros(3)                          
 f.v = translation + V.dot(Rodrigues(rotation))                                  
-                                                                                
-f = GaussPyrDownOne(px=f, im_shape=f.shape, want_downsampling=True)                                                                        
-
+           
 observed = f.r 
-translation[:] = translation.r + np.random.rand(3)*.2
-rotation[:] = rotation.r + np.random.rand(3)*.2
+translation[:] = translation.r + np.random.rand(3)
+rotation[:] = rotation.r + np.random.rand(3) *.2
 A.components[1:] = 0
 
 # Create the energy
-difference = f - observed
-E = gaussian_pyramid(difference, n_levels=6, normalization=lambda x : x / x.size)
-
-global cb
-global difference
-global plt
+E_raw = f - observed
+E_pyr = gaussian_pyramid(E_raw, n_levels=6, normalization='size')
 
 def cb(_):
     import cv2
-    cv2.imshow('Absolute difference', np.abs(difference.r))
+    global E_raw
+    cv2.imshow('Absolute difference', np.abs(E_raw.r))
     cv2.waitKey(1)                  
 
 print 'OPTIMIZING TRANSLATION, ROTATION, AND LIGHT PARMS'    
 free_variables=[translation, rotation, A.components]
-ch.minimize({'pyr': E}, x0=free_variables, callback=cb, options={'e_3': .1}) 
-ch.minimize({'raw': difference}, x0=free_variables, callback=cb, options={'e_3': .01}) 
+ch.minimize({'pyr': E_pyr}, x0=free_variables, callback=cb) 
+ch.minimize({'raw': E_raw}, x0=free_variables, callback=cb) 
 
 """
 
