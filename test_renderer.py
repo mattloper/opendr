@@ -84,7 +84,7 @@ class TestRenderer(unittest.TestCase):
     def test_pyramids(self):
         """ Test that pyramid construction doesn't crash. No quality testing here. """
         mesh, lightings, camera, frustum, renderers = self.load_basics()
-        from opendr.filters import gaussian_pyramid, laplacian_pyramid, GaussPyrDownOne
+        from filters import gaussian_pyramid, laplacian_pyramid, GaussPyrDownOne
 
         camera.v = mesh.v
         for rn in renderers:
