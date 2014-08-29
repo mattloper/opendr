@@ -95,7 +95,14 @@ class TestRenderer(unittest.TestCase):
             rn_gpr = GaussPyrDownOne(im_shape=rn.shape, want_downsampling=True, px=rn)
             for r in [rn_pyr, rn_lap, rn_gpr]:
                 _ = r.r
-                #_ = r.dr_wrt(rn.v)
+
+            for r in [rn_pyr, rn_gpr]:
+                for ii in range(3):
+                    rn.v[:,:] = rn.v[:,:].r + 1e-10
+                    import time
+                    tm = time.time()
+                    _ = r.dr_wrt(rn)
+                    #print "trial %d: %.2fS " % (ii, time.time() - tm)
         
     def test_distortion(self):
         mesh, lightings, camera, frustum, renderers = self.load_basics()
