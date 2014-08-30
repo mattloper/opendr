@@ -61,7 +61,7 @@ def autogen_opengl_sources():
 def setup_opendr(ext_modules):
     ext_modules=cythonize(ext_modules)
     setup(name='opendr',
-            version='0.64',
+            version='0.65',
             packages = ['opendr', 'opendr.contexts', 'opendr.test_dr'],
             package_dir = {'opendr': '.'},
             author = 'Matthew Loper',

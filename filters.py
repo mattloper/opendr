@@ -143,7 +143,7 @@ class GaussPyrDownOneNew(Ch):
             return sp.linalg.LinearOperator((self.r.size, self.px.size), linop)
 
 
-GaussPyrDownOne = GaussPyrDownOneNew
+GaussPyrDownOne = GaussPyrDownOneOld
 
 def halfsampler_for(shape):
     h = shape[0]
