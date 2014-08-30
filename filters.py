@@ -123,33 +123,25 @@ class GaussPyrDownOneOld(Ch):
         if wrt is self.transform:
             return 1
         
-        
-        
+    
+
 class GaussPyrDownOneNew(Ch):
-    terms =  'im_shape', 'want_downsampling', 'kernel'
+    terms =  'im_shape'
     dterms = 'px'
     
-    # Approximation to a 3x3 Gaussian kernel
-    default_kernel = GaussianKernel2D(3, 1)
-
-    def on_changed(self, which):
-        if not hasattr(self, 'kernel'):
-            self.kernel = self.default_kernel.copy()
-            
     @property
     def output_shape(self):
         return self.r.shape
     
     def compute_r(self):
-        result = cv2.filter2D(self.px.r, -1, self.kernel)[::2,:][:,::2]
-        #print result.shape
+        result = cv2.pyrDown(self.px.r)
         return result
     
     def compute_dr_wrt(self, wrt):
         if wrt is self.px:
-            linop = lambda x : cv2.filter2D(x.reshape(self.im_shape), -1, self.kernel)[::2,:][:,::2]
+            linop = lambda x : cv2.pyrDown(x.reshape(self.im_shape)).ravel()
             return sp.linalg.LinearOperator((self.r.size, self.px.size), linop)
-    
+
 
 GaussPyrDownOne = GaussPyrDownOneNew
 
