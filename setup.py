@@ -9,6 +9,7 @@ from distutils.extension import Extension
 import numpy
 import platform
 import os
+from version import version
 
 try:
     from Cython.Build import cythonize
@@ -61,7 +62,7 @@ def autogen_opengl_sources():
 def setup_opendr(ext_modules):
     ext_modules=cythonize(ext_modules)
     setup(name='opendr',
-            version='0.65',
+            version=version,
             packages = ['opendr', 'opendr.contexts', 'opendr.test_dr'],
             package_dir = {'opendr': '.'},
             author = 'Matthew Loper',
