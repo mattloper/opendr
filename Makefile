@@ -2,7 +2,7 @@
 all: 
 	python2.7 setup.py build_ext --inplace
 
-upload:
+upload: all
 	python setup.py register sdist upload
 
 #sdist: all
