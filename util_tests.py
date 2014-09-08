@@ -5,32 +5,24 @@ from os.path import join, split, exists
 import numpy as np
 from cvwrap import cv2
 
+from chumpy.utils import row, col
 from utils import wget
 
-def download_earthmesh():
-    import os, sys
-    def wg(url):
-        dest = join(os.path.dirname(__file__), split(url)[1])
-        if not exists(dest):
-            sys.stderr.write('Downloading %s...\n' % (url))
-            wget(url, dest)
-            sys.stderr.write('Downloading %s...done.\n' % (url))
-    wg('http://files.is.tue.mpg.de/mloper/opendr/images/nasa_earth.obj')
-    wg('http://files.is.tue.mpg.de/mloper/opendr/images/nasa_earth.mtl')
-    wg('http://files.is.tue.mpg.de/mloper/opendr/images/nasa_earth.jpg')
-
 def get_earthmesh(trans, rotation):
-    from chumpy.utils import row, col
     from serialization import load_mesh
-    import os.path
-    import sys
 
     from copy import deepcopy
     if not hasattr(get_earthmesh, 'm'):
 
-        download_earthmesh()
+        def wg(url):
+            dest = join('/tmp', split(url)[1])
+            if not exists(dest):
+                wget(url, dest)
+        wg('http://files.is.tue.mpg.de/mloper/opendr/images/nasa_earth.obj')
+        wg('http://files.is.tue.mpg.de/mloper/opendr/images/nasa_earth.mtl')
+        wg('http://files.is.tue.mpg.de/mloper/opendr/images/nasa_earth.jpg')
 
-        fname = join(os.path.dirname(__file__), 'nasa_earth.obj')
+        fname = join('/tmp', 'nasa_earth.obj')
         mesh = load_mesh(fname)
 
         mesh.v = np.asarray(mesh.v, order='C')

@@ -29,7 +29,7 @@ if 'setuptools.extension' in sys.modules:
 context_dir = os.path.join(os.path.dirname(__file__), 'contexts')
 
 def download_osmesa():
-    import os, re, zipfile, sys
+    import os, re, zipfile
     from utils import wget
     mesa_dir = os.path.join(context_dir,'OSMesa')
     if not os.path.exists(mesa_dir):
@@ -37,11 +37,10 @@ def download_osmesa():
         osmesa_fname = 'OSMesa.%s.%s.zip' % (sysinfo[0], sysinfo[-2])
         zip_fname = os.path.join(context_dir, osmesa_fname)
         if not os.path.exists(zip_fname):
-            sys.stderr.write("Downloading %s..." % osmesa_fname)
+            print "Downloading %s" % osmesa_fname
             # MPI url: http://files.is.tue.mpg.de/mloper/opendr/osmesa/%s
             # BL url: https://s3.amazonaws.com/bodylabs-assets/public/osmesa/%s
             wget('http://files.is.tue.mpg.de/mloper/opendr/osmesa/%s' % (osmesa_fname,), dest_fname=zip_fname)
-            sys.stderr.write("Downloading %s...done." % osmesa_fname)
         assert(os.path.exists(zip_fname))
         with zipfile.ZipFile(zip_fname, 'r') as z:
             for f in filter(lambda x: re.search('[ah]$', x), z.namelist()):
@@ -70,7 +69,7 @@ def setup_opendr(ext_modules):
             author_email = 'matt.loper@gmail.com',
             url = 'http://github.com/mattloper/opendr',
             ext_package='opendr',
-            package_data={'opendr': ['nasa*']},
+            package_data={'opendr': ['test_dr/nasa*']},
             install_requires=['Cython', 'chumpy >= 0.58', 'matplotlib'],
             description='opendr',
             ext_modules=ext_modules,
@@ -136,8 +135,6 @@ def main():
 
     # Get osmesa and some processed files ready
     download_osmesa()
-    from util_tests import download_earthmesh
-    download_earthmesh()
     autogen_opengl_sources()
 
     # Get context extensions ready & build
