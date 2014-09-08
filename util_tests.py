@@ -10,19 +10,23 @@ from utils import wget
 
 def get_earthmesh(trans, rotation):
     from serialization import load_mesh
+    import os.path
+    import sys
 
     from copy import deepcopy
     if not hasattr(get_earthmesh, 'm'):
 
         def wg(url):
-            dest = join('/tmp', split(url)[1])
+            dest = join(os.path.dirname(__file__), split(url)[1])
             if not exists(dest):
+                sys.stderr.write('Downloading %s...\n' % (url))
                 wget(url, dest)
+                sys.stderr.write('Downloading %s...done.\n' % (url))
         wg('http://files.is.tue.mpg.de/mloper/opendr/images/nasa_earth.obj')
         wg('http://files.is.tue.mpg.de/mloper/opendr/images/nasa_earth.mtl')
         wg('http://files.is.tue.mpg.de/mloper/opendr/images/nasa_earth.jpg')
 
-        fname = join('/tmp', 'nasa_earth.obj')
+        fname = join(os.path.dirname(__file__), 'nasa_earth.obj')
         mesh = load_mesh(fname)
 
         mesh.v = np.asarray(mesh.v, order='C')
