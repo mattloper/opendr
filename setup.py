@@ -136,8 +136,8 @@ def main():
 
     # Get osmesa and some processed files ready
     download_osmesa()
-    from util_tests import get_earthmesh
-    get_earthmesh(numpy.zeros(3), numpy.zeros(3))
+    from util_tests import download_earthmesh
+    download_earthmesh()
     autogen_opengl_sources()
 
     # Get context extensions ready & build
