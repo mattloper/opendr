@@ -119,16 +119,19 @@ def loop_subdivider(mesh_v, mesh_f):
 
             nn = len(nbrs)
 
-            if nn ==3:
+            if nn < 3:
+                wt = 0.
+            elif nn == 3:
                 wt = 3./16.
             elif nn > 3:
                 wt = 3. / (8. * nn)
             else:
                 raise Exception('nn should be 3 or more')
-            for nbr in nbrs:
-                IS.append(idx)
-                JS.append(nbr)
-                data.append(wt)
+            if wt > 0.:
+                for nbr in nbrs:
+                    IS.append(idx)
+                    JS.append(nbr)
+                    data.append(wt)
 
             JS.append(idx)
             IS.append(idx)
