@@ -77,12 +77,19 @@ def dImage_wrt_2dVerts_bnd(observed, visible, visibility, barycentric, image_wid
     ydiffnb, xdiffnb = nangradients(obs_nonbnd)
 
     observed = np.atleast_3d(observed)
+    
     if observed.shape[2] > 1:
-        ydiffbnd, xdiffbnd, _ = np.gradient(observed)
+        ydiffbnd, xdiffbnd, _ = np.gradient(observed)        
     else:
         ydiffbnd, xdiffbnd = np.gradient(observed.squeeze())
         ydiffbnd = np.atleast_3d(ydiffbnd)
         xdiffbnd = np.atleast_3d(xdiffbnd)
+
+    # This corrects for a bias imposed boundary differences begin spread over two pixels
+    # (by np.gradients or similar) but only counted once (since OpenGL's line
+    # drawing spans 1 pixel)
+    xdiffbnd *= 2.0
+    ydiffbnd *= 2.0
 
     xdiffnb = -xdiffnb
     ydiffnb = -ydiffnb
