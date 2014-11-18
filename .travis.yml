@@ -4,11 +4,12 @@ python:
 virtualenv:
   system_site_packages: true
 before_install:
-  - sudo add-apt-repository ppa:pylab/stable -y
+#  - sudo add-apt-repository ppa:pylab/stable -y
   - sudo apt-get update -q
-  - sudo apt-get install -qq libopenblas-dev liblapack-dev gfortran # install these first
-  - sudo apt-get install -qq python-numpy python-scipy
-  - sudo apt-get install -qq python-opencv
+  - sudo apt-get install -qq python-dev gfortran python-opencv libzmq-dev libcgal-dev libsuitesparse-dev libtbb-dev libpng-dev libfreetype6-dev pkg-config
+#  - sudo apt-get install -qq libopenblas-dev liblapack-dev gfortran # install these first
+#  - sudo apt-get install -qq python-numpy python-scipy
+#  - sudo apt-get install -qq python-opencv
   - sudo pip install Cython
   - sudo pip install git+git://github.com/mattloper/chumpy.git
 script: make test
