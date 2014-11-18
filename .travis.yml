@@ -11,5 +11,5 @@ before_install:
   - sudo pip install Cython
   - sudo pip install git+git://github.com/mattloper/chumpy.git
 install:
-  - sudo pip install -r requirements.txt -q  
+  - sudo pip install -r requirements.txt
 script: make test
