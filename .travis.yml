@@ -9,7 +9,7 @@ before_install:
   - sudo apt-get install -qq python-dev gfortran python-opencv pkg-config liblapack-dev
   - pip install --upgrade pip
   - pip install Cython
-  - pip install git+git://github.com/mattloper/chumpy.git
+  - travis_wait pip install git+git://github.com/mattloper/chumpy.git
 install:
   - pip install -r requirements.txt
 script: make test
