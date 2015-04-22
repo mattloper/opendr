@@ -41,62 +41,32 @@ def get_vertices_per_edge(mesh_v, mesh_f):
     only once. If output of get_faces_per_edge is provided, this is used to
     avoid call to get_vert_connectivity()"""
 
-    faces = mesh_f
-    cache_fname = '/tmp/verts_per_edge_cache_' + str(zlib.crc32(faces.flatten())) + '.pkl'
-    try:
-        with open(cache_fname, 'rb') as fp:
-            return(pickle.load(fp))
-    except:
-        vc = sp.coo_matrix(get_vert_connectivity(mesh_v, mesh_f))
-        result = np.hstack((col(vc.row), col(vc.col)))
-        result = result[result[:,0] < result[:,1]] # for uniqueness
+    vc = sp.coo_matrix(get_vert_connectivity(mesh_v, mesh_f))
+    result = np.hstack((col(vc.row), col(vc.col)))
+    result = result[result[:,0] < result[:,1]] # for uniqueness
 
-        with open(cache_fname, 'wb') as fp:
-            pickle.dump(result, fp, -1)
-        return result
+    return result
 
 
 def get_faces_per_edge(mesh_v, mesh_f, verts_per_edge=None):
-    faces = mesh_f
-    suffix = str(zlib.crc32(verts_per_edge.flatten())) if verts_per_edge is not None else ''
-    cache_fname = '/tmp/edgecache_new_' + str(zlib.crc32(faces.flatten())) + '_' + suffix + '.pkl'
+    if verts_per_edge is None:
+        verts_per_edge = get_vertices_per_edge(mesh_v, mesh_f)
 
-    try:
-        with open(cache_fname, 'rb') as fp:
-            return(pickle.load(fp))
-    except:
-        if verts_per_edge is None:
-            verts_per_edge = get_vertices_per_edge(mesh_v, mesh_f)
+    v2f = {i: set([]) for i in range(len(mesh_v))}
+    # TODO: cythonize?
+    for idx, f in enumerate(mesh_f):
+        v2f[f[0]].add(idx)
+        v2f[f[1]].add(idx)
+        v2f[f[2]].add(idx)
 
-        v2f = {i: set([]) for i in range(len(mesh_v))}
-        # TODO: cythonize?
-        for idx, f in enumerate(mesh_f):
-            v2f[f[0]].add(idx)
-            v2f[f[1]].add(idx)
-            v2f[f[2]].add(idx)
+    fpe = -np.ones_like(verts_per_edge)
+    for idx, edge in enumerate(verts_per_edge):
+        faces = v2f[edge[0]].intersection(v2f[edge[1]])
+        faces = list(faces)[:2]
+        for i, f in enumerate(faces):
+            fpe[idx,i] = f
 
-        fpe = -np.ones_like(verts_per_edge)
-        for idx, edge in enumerate(verts_per_edge):
-            faces = v2f[edge[0]].intersection(v2f[edge[1]])
-            faces = list(faces)[:2]
-            for i, f in enumerate(faces):
-                fpe[idx,i] = f
-
-        result = fpe
-        # f = faces
-        # IS = np.repeat(np.arange(len(f)), 3)
-        # JS = f.ravel()
-        # data = np.ones(IS.size)
-        # f2v = sp.csc_matrix((data, (IS, JS)), shape=(len(f), np.max(f.ravel())+1))
-        # f2f = f2v.dot(f2v.T)
-        # f2f = f2f.tocoo()
-        # f2f = np.hstack((col(f2f.row), col(f2f.col), col(f2f.data)))
-        # which = (f2f[:,0] < f2f[:,1]) & (f2f[:,2] >= 2)
-        # result = np.asarray(f2f[which, :2], np.uint32)
-
-        with open(cache_fname, 'wb') as fp:
-            pickle.dump(result, fp, -1)
-        return result
+    return fpe
 
 
 
