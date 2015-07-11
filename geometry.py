@@ -245,7 +245,7 @@ class VertNormals(Ch):
     """If normalized==True, normals are normalized; otherwise they'll be about as long as neighboring edges."""
     
     dterms = 'v'
-    terms = 'f' 'normalized'
+    terms = 'f', 'normalized'
     term_order = 'v', 'f'
 
     def on_changed(self, which):
