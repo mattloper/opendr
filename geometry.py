@@ -246,7 +246,7 @@ class VertNormals(Ch):
     
     dterms = 'v'
     terms = 'f', 'normalized'
-    term_order = 'v', 'f'
+    term_order = 'v', 'f', 'normalized'
 
     def on_changed(self, which):
 
@@ -254,7 +254,7 @@ class VertNormals(Ch):
             self.normalized = True
             
         for w in which:
-            if w not in ('v', 'f'):
+            if w not in ('v', 'f', 'normalized'):
                 raise Exception('VertNormals has only v and f now, and you specified %s.' % (w))
 
         if hasattr(self, 'v') and hasattr(self, 'f'):
