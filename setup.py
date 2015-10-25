@@ -61,6 +61,10 @@ def autogen_opengl_sources():
 
 def setup_opendr(ext_modules):
     ext_modules=cythonize(ext_modules)
+    if platform.system() == 'Darwin':
+        try: # hack for El Capitan (OS X)
+            ext_modules[0]._convert_pyx_sources_to_lang = lambda : None
+        except: pass
     setup(name='opendr',
             version=version,
             packages = ['opendr', 'opendr.contexts', 'opendr.test_dr'],
