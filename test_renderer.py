@@ -34,7 +34,7 @@ def getcam():
     w = 256
     h = 192
 
-    f = np.array([200,200])
+    f = np.array([200.,200.])
     rt = np.zeros(3)
     t = np.zeros(3)
     k = np.zeros(5)
