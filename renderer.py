@@ -359,32 +359,25 @@ class ColoredRenderer(BaseRenderer):
 
     @depends_on('f', 'camera', 'vc')
     def boundarycolor_image(self):
-
-        try:
-            return self.draw_boundarycolor_image(with_vertex_colors=True)
-        except:
-            import pdb; pdb.set_trace()
+        return self.draw_boundarycolor_image(with_vertex_colors=True)
 
 
     def draw_color_image(self, gl):
         self._call_on_changed()
-        try:
-            gl.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        gl.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            # use face colors if given
-            # FIXME: this won't work for 2 channels
-            draw_colored_verts(gl, self.v.r, self.f, self.vc.r)
+        # use face colors if given
+        # FIXME: this won't work for 2 channels
+        draw_colored_verts(gl, self.v.r, self.f, self.vc.r)
 
-            result = np.asarray(deepcopy(gl.getImage()[:,:,:self.num_channels].squeeze()), np.float64)
+        result = np.asarray(deepcopy(gl.getImage()[:,:,:self.num_channels].squeeze()), np.float64)
 
-            if hasattr(self, 'background_image'):
-                bg_px = np.tile(np.atleast_3d(self.visibility_image) == 4294967295, (1,1,self.num_channels)).squeeze()
-                fg_px = 1 - bg_px
-                result = bg_px * self.background_image + fg_px * result
+        if hasattr(self, 'background_image'):
+            bg_px = np.tile(np.atleast_3d(self.visibility_image) == 4294967295, (1,1,self.num_channels)).squeeze()
+            fg_px = 1 - bg_px
+            result = bg_px * self.background_image + fg_px * result
 
-            return result
-        except:
-            import pdb; pdb.set_trace()
+        return result
 
     @depends_on(dterms+terms)
     def color_image(self):
@@ -412,14 +405,11 @@ class ColoredRenderer(BaseRenderer):
     @depends_on(terms+dterms)    
     def boundarycolor_image(self): 
         self._call_on_changed()
-        try:
-            gl = self.glf
-            colors = self.vc.r.reshape((-1,3))[self.vpe.ravel()]
-            gl.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            draw_colored_primitives(gl, self.v.r.reshape((-1,3)), self.vpe, colors)
-            return np.asarray(deepcopy(gl.getImage()), np.float64)
-        except:
-            import pdb; pdb.set_trace()
+        gl = self.glf
+        colors = self.vc.r.reshape((-1,3))[self.vpe.ravel()]
+        gl.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        draw_colored_primitives(gl, self.v.r.reshape((-1,3)), self.vpe, colors)
+        return np.asarray(deepcopy(gl.getImage()), np.float64)
             
 
         
@@ -538,17 +528,14 @@ class TexturedRenderer(ColoredRenderer):
     @depends_on(terms+dterms)    
     def boundarycolor_image(self): 
         self._call_on_changed()
-        try:
-            gl = self.glf
-            colors = self.vc.r.reshape((-1,3))[self.vpe.ravel()]
-            gl.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            self.texture_mapping_on(gl, with_vertex_colors=False if colors is None else True)
-            gl.TexCoordPointerf(2,0, self.wireframe_tex_coords.ravel())
-            draw_colored_primitives(self.glf, self.v.r.reshape((-1,3)), self.vpe, colors)
-            self.texture_mapping_off(gl)
-            return np.asarray(deepcopy(gl.getImage()), np.float64)
-        except:
-            import pdb; pdb.set_trace()
+        gl = self.glf
+        colors = self.vc.r.reshape((-1,3))[self.vpe.ravel()]
+        gl.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        self.texture_mapping_on(gl, with_vertex_colors=False if colors is None else True)
+        gl.TexCoordPointerf(2,0, self.wireframe_tex_coords.ravel())
+        draw_colored_primitives(self.glf, self.v.r.reshape((-1,3)), self.vpe, colors)
+        self.texture_mapping_off(gl)
+        return np.asarray(deepcopy(gl.getImage()), np.float64)
 
     def draw_color_image(self, with_vertex_colors=True, with_texture_on=True):
         self._call_on_changed()

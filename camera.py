@@ -159,12 +159,8 @@ class ProjectPoints3D(ProjectPoints):
         
     @property
     def z_coords(self):
-        
-        try:
-            assert(self.v.r.shape[1]==3)
-            return RigidTransform(v=self.v, rt=self.rt, t=self.t)[:,2]
-        except:
-            import pdb; pdb.set_trace()
+        assert(self.v.r.shape[1]==3)
+        return RigidTransform(v=self.v, rt=self.rt, t=self.t)[:,2]
     
     def compute_dr_wrt(self, wrt):
         result = ProjectPoints.compute_dr_wrt(self, wrt)
@@ -182,19 +178,15 @@ class ProjectPoints3D(ProjectPoints):
             
             result = sp.csc_matrix((data, (IS, JS)), shape=(self.v.r.size, wrt.r.size))
         else:
-            try:
-                bigger = np.zeros((result.shape[0]/2, 3, result.shape[1]))
-                bigger[:, :2, :] = result.reshape((-1, 2, result.shape[-1]))
-                drz = self.z_coords.dr_wrt(wrt)
-                if drz is not None:
-                    if sp.issparse(drz):
-                        drz = drz.todense()
-                    bigger[:,2,:] = drz.reshape(bigger[:,2,:].shape)
+            bigger = np.zeros((result.shape[0]/2, 3, result.shape[1]))
+            bigger[:, :2, :] = result.reshape((-1, 2, result.shape[-1]))
+            drz = self.z_coords.dr_wrt(wrt)
+            if drz is not None:
+                if sp.issparse(drz):
+                    drz = drz.todense()
+                bigger[:,2,:] = drz.reshape(bigger[:,2,:].shape)
 
-                result = bigger.reshape((-1, bigger.shape[-1]))
-            except:
-                import pdb; pdb.set_trace()
-                    
+            result = bigger.reshape((-1, bigger.shape[-1]))
 
         return result            
             
