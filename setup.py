@@ -61,10 +61,9 @@ def autogen_opengl_sources():
 
 def setup_opendr(ext_modules):
     ext_modules=cythonize(ext_modules)
-    if platform.system() == 'Darwin':
-        try: # hack for El Capitan (OS X)
-            ext_modules[0]._convert_pyx_sources_to_lang = lambda : None
-        except: pass
+    try: # hack
+        ext_modules[0]._convert_pyx_sources_to_lang = lambda : None
+    except: pass
     setup(name='opendr',
             version=version,
             packages = ['opendr', 'opendr.contexts', 'opendr.test_dr'],
@@ -89,7 +88,7 @@ def setup_opendr(ext_modules):
 
                 # Indicate who your project is intended for
                 'Intended Audience :: Science/Research',
-                'Topic :: Multimedia :: Graphics :: 3D Rendering',                
+                'Topic :: Multimedia :: Graphics :: 3D Rendering',
 
                 # Pick your license as you wish (should match "license" above)
                 'License :: OSI Approved :: MIT License',
@@ -98,11 +97,11 @@ def setup_opendr(ext_modules):
                 # that you indicate whether you support Python 2, Python 3 or both.
                 'Programming Language :: Python :: 2',
                 'Programming Language :: Python :: 2.7',
-                
+
                 'Operating System :: MacOS :: MacOS X',
                 'Operating System :: POSIX :: Linux'
             ],
-            
+
           )
 
 
