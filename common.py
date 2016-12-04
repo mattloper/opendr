@@ -10,7 +10,11 @@ import numpy as np
 from copy import deepcopy
 import scipy.sparse as sp
 from cvwrap import cv2
-import scipy.stats
+
+try:
+    from scipy.stats import nanmean as nanmean_impl
+except:
+    from numpy import nanmean as nanmean_impl
 
 from chumpy.utils import row, col
 from contexts._constants import *
@@ -18,7 +22,7 @@ from contexts._constants import *
 def nanmean(a, axis):
     # don't call nan_to_num in here, unless you check that
     # occlusion_test.py still works after you do it!
-    result = scipy.stats.nanmean(a, axis=axis)
+    result = nanmean_impl(a, axis=axis)
     return result
 
 def nangradients(arr):
@@ -77,9 +81,9 @@ def dImage_wrt_2dVerts_bnd(observed, visible, visibility, barycentric, image_wid
     ydiffnb, xdiffnb = nangradients(obs_nonbnd)
 
     observed = np.atleast_3d(observed)
-    
+
     if observed.shape[2] > 1:
-        ydiffbnd, xdiffbnd, _ = np.gradient(observed)        
+        ydiffbnd, xdiffbnd, _ = np.gradient(observed)
     else:
         ydiffbnd, xdiffbnd = np.gradient(observed.squeeze())
         ydiffbnd = np.atleast_3d(ydiffbnd)
@@ -366,7 +370,7 @@ def draw_visibility_image_internal(gl, v, f):
     fc[:, 1] = (fc[:, 1] >> 8 ) & 255
     fc[:, 2] = (fc[:, 2] >> 16 ) & 255
     fc = np.asarray(fc, dtype=np.uint8)
-    
+
     draw_colored_primitives(gl, v, f, fc)
     raw = np.asarray(gl.getImage(), np.uint32)
     raw = raw[:,:,0] + raw[:,:,1]*256 + raw[:,:,2]*256*256 - 1
@@ -374,18 +378,18 @@ def draw_visibility_image_internal(gl, v, f):
 
 # this assumes that fc is either "by faces" or "verts by face", not "by verts"
 def draw_colored_primitives(gl, v, f, fc=None):
-    
+
     gl.EnableClientState(GL_VERTEX_ARRAY);
     verts_by_face = np.asarray(v.reshape((-1,3))[f.ravel()], dtype=np.float64, order='C')
     gl.VertexPointer(verts_by_face)
-    
+
     if fc is not None:
         gl.EnableClientState(GL_COLOR_ARRAY);
         if fc.size == verts_by_face.size:
             vc_by_face = fc
         else:
             vc_by_face = np.repeat(fc, f.shape[1], axis=0)
-        
+
         if vc_by_face.size != verts_by_face.size:
             raise Exception('fc must have either rows=(#rows in faces) or rows=(# elements in faces)')
 
@@ -457,7 +461,7 @@ def draw_barycentric_image_internal(gl, v, f):
     gl.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     gl.EnableClientState(GL_VERTEX_ARRAY);
     gl.EnableClientState(GL_COLOR_ARRAY);
-    
+
     verts_by_face = v.reshape((-1,3))[f.ravel()]
     verts_by_face = np.asarray(verts_by_face, dtype=np.float64, order='C')
     vc_by_face = np.asarray(np.tile(np.eye(3)[:f.shape[1], :], (verts_by_face.shape[0]/f.shape[1], 1)), order='C')

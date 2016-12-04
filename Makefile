@@ -3,7 +3,7 @@ all:
 	python2.7 setup.py build_ext --inplace
 
 upload: all
-	python setup.py register sdist upload
+	python setup.py register sdist && twine upload dist/*
 
 #sdist: all
 #	python setup.py sdist && rsync -avz dist/opendr-0.5.tar.gz files:~/opendr/latest.tgz
