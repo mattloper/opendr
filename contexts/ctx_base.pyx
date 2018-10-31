@@ -193,6 +193,14 @@ cdef class OsContextBase(object):
     def DrawElements2(self, GLenum mode, GLsizei count, GLenum typ):
         _glDrawElements(mode, count, typ, NULL)
 
+
+    @mc
+    def ClearDepth( self, GLclampf depth): _glClearDepth(depth)
+
+
+    @mc
+    def DepthFunc(self, GLenum typ): _glDepthFunc(typ)    
+
     @mc
     def DrawPixels(self, width, height, fmt, typ, np.ndarray[float, ndim=3] data not None): _glDrawPixels(width, height, fmt, typ, &data[0,0,0])    
     @mc    
