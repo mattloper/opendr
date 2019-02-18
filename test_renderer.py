@@ -15,13 +15,13 @@ try:
     import matplotlib.pyplot as plt
     import matplotlib
 except:
-    from dummy import dummy as plt
+    from .dummy import dummy as plt
 
-from renderer import *
+from .renderer import *
 from chumpy import Ch
 from chumpy.utils import row, col
-from lighting import *
-from util_tests import get_earthmesh, process
+from .lighting import *
+from .util_tests import get_earthmesh, process
 from collections import OrderedDict
 
 
@@ -29,7 +29,7 @@ from collections import OrderedDict
 visualize = False
     
 def getcam():
-    from camera import ProjectPoints
+    from .camera import ProjectPoints
 
     w = 256
     h = 192
@@ -84,7 +84,7 @@ class TestRenderer(unittest.TestCase):
     def test_pyramids(self):
         """ Test that pyramid construction doesn't crash. No quality testing here. """
         mesh, lightings, camera, frustum, renderers = self.load_basics()
-        from filters import gaussian_pyramid, laplacian_pyramid, GaussPyrDownOne
+        from .filters import gaussian_pyramid, laplacian_pyramid, GaussPyrDownOne
 
         camera.v = mesh.v
         for rn in renderers:
@@ -137,7 +137,7 @@ class TestRenderer(unittest.TestCase):
             [0, 0, 1]
         ])
 
-        from cvwrap import cv2
+        from .cvwrap import cv2
         im_undistorted = cv2.undistort(im_distorted, cmtx, cr.camera.k.r)
 
         d1 = (im_original - im_distorted).ravel()
@@ -207,7 +207,7 @@ class TestRenderer(unittest.TestCase):
             renderer.camera = camera
 
 
-            for atrname, info in camparms.items():
+            for atrname, info in list(camparms.items()):
 
                 # Get pixels and derivatives
                 r = renderer.r
@@ -258,13 +258,13 @@ class TestRenderer(unittest.TestCase):
                     matplotlib.rcParams.update({'font.size': 18})
                     plt.figure(figsize=(6*3, 2*3))
                     for idx, title in enumerate(images.keys()):
-                        plt.subplot(1,len(images.keys()), idx+1)
+                        plt.subplot(1,len(list(images.keys())), idx+1)
                         im = process(images[title].reshape(im_shape), vmin=-.5, vmax=.5)
                         plt.title(title)
                         plt.imshow(im)
 
-                    print '%s: median nonzero %.2e' % (atrname, mederror,)
-                    print '%s: mean nonzero %.2e' % (atrname, meanerror,)
+                    print('%s: median nonzero %.2e' % (atrname, mederror,))
+                    print('%s: mean nonzero %.2e' % (atrname, meanerror,))
                     plt.draw()
                     plt.show()
 
@@ -326,13 +326,13 @@ class TestRenderer(unittest.TestCase):
                 matplotlib.rcParams.update({'font.size': 18})
                 plt.figure(figsize=(6*3, 2*3))
                 for idx, title in enumerate(images.keys()):
-                    plt.subplot(1,len(images.keys()), idx+1)
+                    plt.subplot(1,len(list(images.keys())), idx+1)
                     im = process(images[title].reshape(im_shape), vmin=-.5, vmax=.5)
                     plt.title(title)
                     plt.imshow(im)
                     
-                print 'verts: median nonzero %.2e' % (np.median(np.abs(nonzero)),)
-                print 'verts: mean nonzero %.2e' % (np.mean(np.abs(nonzero)),)
+                print('verts: median nonzero %.2e' % (np.median(np.abs(nonzero)),))
+                print('verts: mean nonzero %.2e' % (np.mean(np.abs(nonzero)),))
                 plt.draw()
                 plt.show()
 
@@ -393,14 +393,14 @@ class TestRenderer(unittest.TestCase):
                 matplotlib.rcParams.update({'font.size': 18})
                 plt.figure(figsize=(6*3, 2*3))
                 for idx, title in enumerate(images.keys()):
-                    plt.subplot(1,len(images.keys()), idx+1)
+                    plt.subplot(1,len(list(images.keys())), idx+1)
                     im = process(images[title].reshape(im_shape), vmin=-.5, vmax=.5)
                     plt.title(title)
                     plt.imshow(im)
                 
                 plt.show()
-                print 'lightpos: median nonzero %.2e' % (np.median(np.abs(nonzero)),)
-                print 'lightpos: mean nonzero %.2e' % (np.mean(np.abs(nonzero)),)
+                print('lightpos: median nonzero %.2e' % (np.median(np.abs(nonzero)),))
+                print('lightpos: mean nonzero %.2e' % (np.mean(np.abs(nonzero)),))
             self.assertLess(np.mean(np.abs(nonzero)), 2.4e-2)
             self.assertLess(np.median(np.abs(nonzero)), 1.2e-2)
             
@@ -465,14 +465,14 @@ class TestRenderer(unittest.TestCase):
                 matplotlib.rcParams.update({'font.size': 18})
                 plt.figure(figsize=(6*3, 2*3))
                 for idx, title in enumerate(images.keys()):
-                    plt.subplot(1,len(images.keys()), idx+1)
+                    plt.subplot(1,len(list(images.keys())), idx+1)
                     im = process(images[title].reshape(im_shape), vmin=-.5, vmax=.5)
                     plt.title(title)
                     plt.imshow(im)
                     
                 plt.show()
-                print 'color: median nonzero %.2e' % (np.median(np.abs(nonzero)),)
-                print 'color: mean nonzero %.2e' % (np.mean(np.abs(nonzero)),)
+                print('color: median nonzero %.2e' % (np.median(np.abs(nonzero)),))
+                print('color: mean nonzero %.2e' % (np.mean(np.abs(nonzero)),))
             self.assertLess(np.mean(np.abs(nonzero)), 2e-2)
             self.assertLess(np.median(np.abs(nonzero)), 4.5e-3)
                      

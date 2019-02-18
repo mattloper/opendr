@@ -9,7 +9,7 @@ See LICENCE.txt for licensing and contact information.
 import numpy as np
 from copy import deepcopy
 import scipy.sparse as sp
-from cvwrap import cv2
+from .cvwrap import cv2
 
 try:
     from scipy.stats import nanmean as nanmean_impl
@@ -17,7 +17,7 @@ except:
     from numpy import nanmean as nanmean_impl
 
 from chumpy.utils import row, col
-from contexts._constants import *
+from .contexts._constants import *
 
 def nanmean(a, axis):
     # don't call nan_to_num in here, unless you check that

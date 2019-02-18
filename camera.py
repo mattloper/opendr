@@ -11,11 +11,11 @@ __all__ = ['ProjectPoints3D', 'ProjectPoints', 'RigidTransform']
 
 import chumpy as ch
 from chumpy import depends_on, Ch
-from cvwrap import cv2
+from .cvwrap import cv2
 import numpy as np
 import scipy.sparse as sp
 from chumpy.utils import row, col
-from geometry import Rodrigues
+from .geometry import Rodrigues
 
 def RigidTransformSlow(**kwargs):
     # Returns a Ch object with dterms 'v', 'rt', and 't'
@@ -195,7 +195,7 @@ class ProjectPoints3D(ProjectPoints):
 def main():
     
     import unittest
-    from test_camera import TestCamera
+    from .test_camera import TestCamera
     suite = unittest.TestLoader().loadTestsFromTestCase(TestCamera)
     unittest.TextTestRunner(verbosity=2).run(suite)
 

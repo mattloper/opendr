@@ -64,9 +64,9 @@ def main():
         gl.LinkProgram(program)
         gl.UseProgram(program)
 
-        print 'glValidateProgram: ' + str(gl.ValidateProgram(program))
-        print 'glGetProgramInfoLog ' + str(gl.GetProgramInfoLog(program))
-        print 'GL_MAX_VERTEX_ATTRIBS: ' + str(gl.GetInteger(GL_MAX_VERTEX_ATTRIBS))
+        print('glValidateProgram: ' + str(gl.ValidateProgram(program)))
+        print('glGetProgramInfoLog ' + str(gl.GetProgramInfoLog(program)))
+        print('GL_MAX_VERTEX_ATTRIBS: ' + str(gl.GetInteger(GL_MAX_VERTEX_ATTRIBS)))
 
 
     gl.DrawElements(GL_TRIANGLES, f)

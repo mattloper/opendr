@@ -12,7 +12,7 @@ import unittest
 import chumpy as ch
 from chumpy import Ch
 import numpy as np
-from util_tests import get_earthmesh
+from .util_tests import get_earthmesh
 
 class TestGeometry(unittest.TestCase):
 
@@ -20,7 +20,7 @@ class TestGeometry(unittest.TestCase):
         np.random.seed(0)
 
     def test_rodrigues(self):
-        from geometry import Rodrigues
+        from .geometry import Rodrigues
         rt = np.random.randn(3)
         rt2 = rt + np.random.rand(3)*1e-5
         foo1 = Rodrigues(rt = rt)
@@ -33,7 +33,7 @@ class TestGeometry(unittest.TestCase):
         
 
     def test_vert_normals(self):
-        from geometry import VertNormals
+        from .geometry import VertNormals
         import numpy as np
 
         mesh = get_earthmesh(np.zeros(3), np.zeros(3))
@@ -50,9 +50,9 @@ class TestGeometry(unittest.TestCase):
         predicted_diff = dr_predicted.dot(eps.flatten()).reshape((-1,3))   
 
         if False:
-            print np.max(np.abs(empirical_diff-predicted_diff))
-            print empirical_diff[:6]
-            print predicted_diff[:6]
+            print(np.max(np.abs(empirical_diff-predicted_diff)))
+            print(empirical_diff[:6])
+            print(predicted_diff[:6])
         self.assertTrue(np.max(np.abs(empirical_diff-predicted_diff)) < 6e-13)
 
 

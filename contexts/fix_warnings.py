@@ -5,7 +5,7 @@ def fix_warnings():
         import distutils.sysconfig as ds
         import string
         a = ds.get_config_vars()
-        for k, v in a.items():
+        for k, v in list(a.items()):
             try:
                 if string.find(v, '-Wstrict-prototypes') != -1:
                     a[k] = string.replace(v, '-Wstrict-prototypes', '')

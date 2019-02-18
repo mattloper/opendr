@@ -11,7 +11,7 @@ __all__ = ['get_vertices_per_edge', 'get_faces_per_edge', 'get_vert_connectivity
 import zlib
 import numpy as np
 import scipy.sparse as sp
-import cPickle as pickle
+import pickle as pickle
 from chumpy.utils import row, col
 
 
@@ -82,7 +82,7 @@ def loop_subdivider(mesh_v, mesh_f):
 
     if True:
         # New values for each vertex
-        for idx in xrange(len(mesh_v)):
+        for idx in range(len(mesh_v)):
 
             # find neighboring vertices
             nbrs = np.nonzero(vc[:,idx])[0]
