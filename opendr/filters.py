@@ -176,8 +176,9 @@ def filter_for_nopadding(shape, kernel):
 
     new_h = int(new_shape[0])
     new_w = int(new_shape[1])
-    old_h = shape[0]
-    old_w = shape[1]
+    old_h = int(shape[0])
+    old_w = int(shape[1])
+
     xs = np.tile(np.arange(old_w), (old_h, 1))
     ys = np.tile(np.arange(old_h), (old_w, 1)).T.copy()
 

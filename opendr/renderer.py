@@ -315,8 +315,9 @@ class ColoredRenderer(BaseRenderer):
 
     def on_changed(self, which):
         if 'frustum' in which:
-            w = self.frustum['width']
-            h = self.frustum['height']
+            w = int(self.frustum['width'])
+            h = int(self.frustum['height'])
+
             self.glf = OsContext(w, h, typ=GL_FLOAT)
             self.glf.Viewport(0, 0, w, h)
             self.glb = OsContext(w, h, typ=GL_UNSIGNED_BYTE)

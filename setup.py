@@ -9,7 +9,7 @@ from distutils.extension import Extension
 import numpy
 import platform
 import os
-from version import version
+from opendr.version import version
 
 try:
     from Cython.Build import cythonize
@@ -26,11 +26,11 @@ import sys
 #    m = sys.modules['setuptools.extension']
 #    m.Extension.__dict__ = m._Extension.__dict__
 
-context_dir = os.path.join(os.path.dirname(__file__), 'contexts')
+context_dir = os.path.join(os.path.dirname(__file__), 'opendr', 'contexts')
 
 def download_osmesa():
     import os, re, zipfile
-    from utils import wget
+    from opendr.utils import wget
     mesa_dir = os.path.join(context_dir,'OSMesa')
     if not os.path.exists(mesa_dir):
         sysinfo = platform.uname()
@@ -41,8 +41,7 @@ def download_osmesa():
             # MPI url: http://files.is.tue.mpg.de/mloper/opendr/osmesa/%s
             # BL url: https://s3.amazonaws.com/bodylabs-assets/public/osmesa/%s
             wget('http://files.is.tue.mpg.de/mloper/opendr/osmesa/%s' % (osmesa_fname,), dest_fname=zip_fname)
-        import pdb
-        pdb.set_trace()
+
         assert(os.path.exists(zip_fname))
         with zipfile.ZipFile(zip_fname, 'r') as z:
             for f in [x for x in z.namelist() if re.search('[ah]$', x)]:
@@ -55,7 +54,7 @@ def autogen_opengl_sources():
     sources = [ os.path.join(context_dir, x) for x in ['_constants.py', '_functions.pyx'] ]
     if not all([ os.path.exists(x) for x in sources ]):
         print("Autogenerating opengl sources")
-        from contexts import autogen
+        from opendr.contexts import autogen
         autogen.main()
         for x in sources:
             assert(os.path.exists(x))
@@ -69,12 +68,12 @@ def setup_opendr(ext_modules):
     setup(name='opendr',
             version=version,
             packages = ['opendr', 'opendr.contexts', 'opendr.test_dr'],
-            package_dir = {'opendr': '.'},
+            #package_dir = {'opendr': 'opendr'},
             author = 'Matthew Loper',
             author_email = 'matt.loper@gmail.com',
             url = 'http://github.com/mattloper/opendr',
-            ext_package='opendr',
-            package_data={'opendr': ['test_dr/nasa*']},
+            #ext_package='opendr',
+            package_data={'opendr': ['opendr/test_dr/nasa*']},
             install_requires=['Cython', 'chumpy >= 0.58', 'matplotlib'],
             description='opendr',
             ext_modules=ext_modules,
@@ -115,27 +114,27 @@ def mesa_ext():
         extra_args.append('-Qunused-arguments')
     else:
         extra_args.append('-lstdc++')
-    return Extension("contexts.ctx_mesa", ['contexts/ctx_mesa.pyx'] if have_cython else ['contexts/ctx_mesa.c'],
+    return Extension("opendr.contexts.ctx_mesa", ['opendr/contexts/ctx_mesa.pyx'] if have_cython else ['opendr/contexts/ctx_mesa.c'],
                         language="c",
-                        library_dirs=['contexts/OSMesa/lib'],
-                        depends=['contexts/_constants.py'],
+                        library_dirs=['opendr/contexts/OSMesa/lib'],
+                        depends=['opendr/contexts/_constants.py'],
                         define_macros = [('__OSMESA__', 1)],
-                        include_dirs=['.', numpy.get_include(), 'contexts/OSMesa/include'],
+                        include_dirs=['.', numpy.get_include(), 'opendr/contexts/OSMesa/include'],
                         libraries=libraries,
                         extra_compile_args=extra_args,
                         extra_link_args=extra_args)
 
 def mac_ext():
-    return Extension("contexts.ctx_mac", ['contexts/ctx_mac.pyx', 'contexts/ctx_mac_internal.c'] if have_cython else ['contexts/ctx_mac.c', 'contexts/ctx_mac_internal.c'],
+    return Extension("opendr.contexts.ctx_mac", ['opendr/contexts/ctx_mac.pyx', 'opendr/contexts/ctx_mac_internal.c'] if have_cython else ['opendr/contexts/ctx_mac.c', 'opendr/contexts/ctx_mac_internal.c'],
         language="c",
-        depends=['contexts/_constants.py', 'contexts/ctx_mac_internal.h'],
+        depends=['opendr/contexts/_constants.py', 'opendr/contexts/ctx_mac_internal.h'],
         include_dirs=['.', numpy.get_include()],
         extra_compile_args=['-Qunused-arguments'],
         extra_link_args=['-Qunused-arguments'])
 
 
 def main():
-    from contexts.fix_warnings import fix_warnings
+    from opendr.contexts.fix_warnings import fix_warnings
     fix_warnings()
 
     # Get osmesa and some processed files ready
