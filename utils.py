@@ -16,7 +16,11 @@ def mstack(vs, fs):
 
 
 def wget(url, dest_fname=None):
-    import urllib.request, urllib.error, urllib.parse
+    try: #python3
+        from urllib.request import urlopen
+    except: #python2
+        from urllib2 import urlopen
+
     from os.path import split, join
 
     curdir = split(__file__)[0]
@@ -27,7 +31,7 @@ def wget(url, dest_fname=None):
         dest_fname = join(curdir, split(url)[1])
 
     try:
-        contents = urllib.request.urlopen(url).read()
+        contents = urlopen(url).read()
     except:
         raise Exception('Unable to get url: %s' % (url,))
     open(dest_fname, 'w').write(contents)
