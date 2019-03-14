@@ -41,8 +41,7 @@ def download_osmesa():
             # MPI url: http://files.is.tue.mpg.de/mloper/opendr/osmesa/%s
             # BL url: https://s3.amazonaws.com/bodylabs-assets/public/osmesa/%s
             wget('http://files.is.tue.mpg.de/mloper/opendr/osmesa/%s' % (osmesa_fname,), dest_fname=zip_fname)
-        import pdb
-        pdb.set_trace()
+
         assert(os.path.exists(zip_fname))
         with zipfile.ZipFile(zip_fname, 'r') as z:
             for f in [x for x in z.namelist() if re.search('[ah]$', x)]:
