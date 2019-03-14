@@ -73,7 +73,7 @@ def setup_opendr(ext_modules):
             author_email = 'matt.loper@gmail.com',
             url = 'http://github.com/mattloper/opendr',
             #ext_package='opendr',
-            package_data={'opendr': ['test_dr/nasa*']},
+            package_data={'opendr': ['opendr/test_dr/nasa*']},
             install_requires=['Cython', 'chumpy >= 0.58', 'matplotlib'],
             description='opendr',
             ext_modules=ext_modules,
