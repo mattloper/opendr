@@ -9,7 +9,7 @@ See LICENCE.txt for licensing and contact information.
 import unittest
 import numpy as np
 
-from camera import *
+from .camera import *
 import chumpy as ch
 
 
@@ -37,7 +37,7 @@ class TestCamera(unittest.TestCase):
         
     def project_points(self, cls):
         cam_params = self.get_cam_params()
-        for key, value in cam_params.items():
+        for key, value in list(cam_params.items()):
             
             eps = (np.random.random(value.r.size)-.5) * 1e-5
             pp_dist = cls(**cam_params)

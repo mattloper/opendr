@@ -1,4 +1,4 @@
-from version import version as __version__
+from .version import version as __version__
 
 def test():
     from os.path import split
@@ -339,12 +339,12 @@ ch.minimize({'raw': E_raw, 'cpl': V - model_v}, x0=free_variables, callback=cb)
 def demo(which=None):
     import re
     if which not in demos:
-        print 'Please indicate which demo you want, as follows:'
+        print('Please indicate which demo you want, as follows:')
         for key in demos:
-            print "\tdemo('%s')" % (key,)
+            print("\tdemo('%s')" % (key,))
         return
 
-    print '- - - - - - - - - - - <CODE> - - - - - - - - - - - -'
-    print re.sub('global.*\n','',demos[which])
-    print '- - - - - - - - - - - </CODE> - - - - - - - - - - - -\n'
+    print('- - - - - - - - - - - <CODE> - - - - - - - - - - - -')
+    print(re.sub('global.*\n','',demos[which]))
+    print('- - - - - - - - - - - </CODE> - - - - - - - - - - - -\n')
     exec('global np\n' + demos[which], globals(), locals())

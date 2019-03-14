@@ -131,13 +131,13 @@ def main():
     gl.BindVertexArray(vao[0])
     gl.DrawElements2(GL_TRIANGLES, f.size, GL_UNSIGNED_INT)
 
-    print 'glValidateProgram: ' + str(gl.ValidateProgram(program))
-    print 'glGetProgramInfoLog ' + str(gl.GetProgramInfoLog(program))
-    print 'GL_MAX_VERTEX_ATTRIBS: ' + str(gl.GetInteger(GL_MAX_VERTEX_ATTRIBS))
+    print('glValidateProgram: ' + str(gl.ValidateProgram(program)))
+    print('glGetProgramInfoLog ' + str(gl.GetProgramInfoLog(program)))
+    print('GL_MAX_VERTEX_ATTRIBS: ' + str(gl.GetInteger(GL_MAX_VERTEX_ATTRIBS)))
 
     im = gl.getImage()
     cv2.imshow('a', im)
-    print gl.GetError()
+    print(gl.GetError())
     import pdb; pdb.set_trace()
 
 

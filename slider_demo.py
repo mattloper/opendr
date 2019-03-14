@@ -1,4 +1,4 @@
-from cvwrap import cv2
+from .cvwrap import cv2
 import numpy as np
 import chumpy as ch
 from copy import deepcopy
@@ -58,7 +58,7 @@ def main():
         if k == 27:
             break
     
-        for k, v in tracked.items():
+        for k, v in list(tracked.items()):
             v[:] = np.array(cv2.getTrackbarPos(k, 'image')).astype(np.float32)*4/cnst
             if tracked[k].r[0] != old_tracked[k].r[0]:
                 drim = rn.dr_wrt(v).reshape(rn.shape)

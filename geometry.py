@@ -9,14 +9,14 @@ See LICENCE.txt for licensing and contact information.
 
 __all__ = ['Rodrigues', 'VertNormals', 'TriNormals', 'TriNormalsScaled', 'CrossProduct', 'TriArea', 'AcosTriAngles', 'volume']
 
-from cvwrap import cv2
+from .cvwrap import cv2
 import numpy as np
 import scipy.sparse as sp
 from chumpy.utils import row, col
 from chumpy import *
 import chumpy as ch
 from chumpy.ch import MatVecMult
-from topology import get_faces_per_edge, get_vert_connectivity
+from .topology import get_faces_per_edge, get_vert_connectivity
 
 
 def volume(v, f):
@@ -260,7 +260,7 @@ class VertNormals(Ch):
                 f = self.f
 
                 IS = f.ravel()
-                JS = np.array([range(f.shape[0])]*3).T.ravel()
+                JS = np.array([list(range(f.shape[0]))]*3).T.ravel()
                 data = np.ones(len(JS))
 
                 IS = np.concatenate((IS*3, IS*3+1, IS*3+2))

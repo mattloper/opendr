@@ -1,29 +1,29 @@
 __all__ = []
 
-import camera
-from camera import *
+from . import camera
+from .camera import *
 __all__ += camera.__all__
 
-import renderer
-from renderer import *
+from . import renderer
+from .renderer import *
 __all__ += renderer.__all__
 
-import lighting
-from lighting import *
+from . import lighting
+from .lighting import *
 __all__ += lighting.__all__
 
-import topology
-from topology import *
+from . import topology
+from .topology import *
 __all__ += topology.__all__
 
-import geometry
-from geometry import *
+from . import geometry
+from .geometry import *
 __all__ += geometry.__all__
 
-import serialization
-from serialization import *
+from . import serialization
+from .serialization import *
 __all__ += serialization.__all__
 
-import filters
-from filters import *
+from . import filters
+from .filters import *
 __all__ += filters.__all__

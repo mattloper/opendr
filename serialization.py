@@ -9,9 +9,9 @@ __author__ = 'matt'
 __all__ = ['load_mesh', 'load_image']
 
 from os.path import split, splitext, join, exists, normpath
-from cvwrap import cv2
+from .cvwrap import cv2
 import numpy as np
-from dummy import Minimal
+from .dummy import Minimal
 
 
 def load_image(filename):
@@ -104,7 +104,7 @@ def read_obj(filename):
                     sz = int(np.round(2 ** np.ceil(np.log(sz) / np.log(2))))
                     d['texture_image'] = cv2.resize(im, (sz, sz)).astype(np.float64)/255.
 
-    for k, v in d.items():
+    for k, v in list(d.items()):
         if k in ['v','vn','f','vt','ft']:
             if v:
                 d[k] = np.vstack(v)
@@ -190,7 +190,7 @@ def read_ply(filename):
 
     v = np.vstack([newelems['vertex'][s] for s in ['x', 'y', 'z']]).T.copy()
     v = np.asarray(v, dtype=np.float64)
-    f = newelems['face'].values()[0]
+    f = list(newelems['face'].values())[0]
 
     mesh = Minimal(v=v, f=f)
 

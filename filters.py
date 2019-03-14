@@ -8,12 +8,13 @@ See LICENCE.txt for licensing and contact information.
 
 __all__ = ['gaussian_pyramid', 'laplacian_pyramid', 'GaussPyrDownOne']
 
-from cvwrap import cv2
+from .cvwrap import cv2
 import chumpy as ch
 import numpy as np
 from copy import deepcopy
 import scipy.sparse as sp
 from chumpy.ch import MatVecMult, Ch, depends_on
+from functools import reduce
 
     
 

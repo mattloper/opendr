@@ -3,13 +3,13 @@ __author__ = 'matt'
 from copy import deepcopy
 from os.path import join, split, exists
 import numpy as np
-from cvwrap import cv2
+from .cvwrap import cv2
 
 from chumpy.utils import row, col
-from utils import wget
+from .utils import wget
 
 def get_earthmesh(trans, rotation):
-    from serialization import load_mesh
+    from .serialization import load_mesh
 
     from copy import deepcopy
     if not hasattr(get_earthmesh, 'm'):

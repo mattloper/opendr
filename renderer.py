@@ -10,22 +10,22 @@ See LICENCE.txt for licensing and contact information.
 __all__ = ['ColoredRenderer', 'TexturedRenderer', 'DepthRenderer']
 
 import numpy as np
-from cvwrap import cv2
+from .cvwrap import cv2
 import time
 import platform
 import scipy.sparse as sp
 from copy import deepcopy
-import common
-from common import draw_visibility_image, draw_barycentric_image, draw_colored_primitives, draw_texcoord_image
-from topology import get_vertices_per_edge, get_faces_per_edge
+from . import common
+from .common import draw_visibility_image, draw_barycentric_image, draw_colored_primitives, draw_texcoord_image
+from .topology import get_vertices_per_edge, get_faces_per_edge
 
 if platform.system()=='Darwin':
-    from contexts.ctx_mac import OsContext
+    from .contexts.ctx_mac import OsContext
 else:
-    from contexts.ctx_mesa import OsContext
+    from .contexts.ctx_mesa import OsContext
 
 from chumpy import *
-from contexts._constants import *
+from .contexts._constants import *
 from chumpy.utils import row, col
 
 
@@ -649,7 +649,7 @@ def draw_boundary_images(glf, glb, v, f, vpe, fpe, camera):
 def compute_vpe_boundary_idxs(v, f, camera, fpe):
     # Figure out which edges are on pairs of differently visible triangles
 
-    from geometry import TriNormals
+    from .geometry import TriNormals
     tn = TriNormals(v, f).r.reshape((-1,3))
 
     #ray = cv2.Rodrigues(camera.rt.r)[0].T[:,2]
