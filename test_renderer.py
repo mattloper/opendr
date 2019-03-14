@@ -48,7 +48,7 @@ def getcam():
         h *= ratio
 
     pp = ProjectPoints(f=f, rt=rt, t=t, k=k, c=c)
-    frustum = {'near': 1.0, 'far': 20.0, 'width': w, 'height': h}
+    frustum = {'near': 1.0, 'far': 20.0, 'width': int(w), 'height': int(h)}
 
     return pp, frustum
 

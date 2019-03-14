@@ -33,7 +33,7 @@ def getcam():
     near = .1
     far = 20.
 
-    frustum = {'near': near, 'far': far, 'width': w, 'height': h}
+    frustum = {'near': near, 'far': far, 'width': int(w), 'height': int(h)}
     pp = ProjectPoints3D(f=f, rt=rt, t=t, k=k, c=c)
 
     return pp, frustum
